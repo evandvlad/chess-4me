@@ -1,0 +1,45 @@
+@use "../colors";
+@use "./helpers";
+
+@mixin -set-cell-styles($is-board-flipped) {
+	@include helpers.on-each-cell($is-board-flipped) using ($file, $rank, $column, $row, $is-dark-cell) {
+		&[data-style-board-coordinate="#{$file}#{$rank}"] {
+			grid-column: $column;
+			grid-row: $row;
+			background-color: colors.$brown-light;
+			cursor: pointer;
+
+			@if $is-dark-cell {
+				background-color: colors.$brown-middle;
+			}
+
+			&.selected {
+				background-color: colors.$green-translucent;
+			}
+
+			&.focused {
+				box-shadow: inset 0 0 3px 3px colors.$green-translucent;
+			}
+		}
+	}
+}
+
+.board {
+	$board-size: 8;
+
+	display: grid;
+	grid-template: repeat(#{$board-size}, 1fr) / repeat(#{$board-size}, 1fr);
+	height: 100%;
+	aspect-ratio: 1;
+	border: 3px solid colors.$brown-dark;
+
+	.cell {
+		@include -set-cell-styles($is-board-flipped: false);
+	}
+
+	&.flipped {
+		.cell {
+			@include -set-cell-styles($is-board-flipped: true);
+		}
+	}
+}

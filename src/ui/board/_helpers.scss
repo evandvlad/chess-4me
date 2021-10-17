@@ -1,0 +1,78 @@
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
+
+@function -reverse-list($list) {
+	$result: ();
+
+	@for $i from list.length($list) * -1 through -1 {
+		$result: list.append($result, list.nth($list, math.abs($i)));
+	}
+
+	@return $result;
+}
+
+@function -is-even-number($value) {
+	$half-value: math.div($value, 2);
+
+	@return math.round($half-value) == $half-value;
+}
+
+$-ranks: "1", "2", "3", "4", "5", "6", "7", "8";
+$-reversed-ranks: -reverse-list($-ranks);
+$-files: "a", "b", "c", "d", "e", "f", "g", "h";
+$-reversed-files: -reverse-list($-files);
+
+@function -get-coordinates() {
+	$result: ();
+
+	@each $file in $-files {
+		@each $rank in $-ranks {
+			$result: list.append(
+				$result,
+				(
+					"rank": $rank,
+					"file": $file,
+				)
+			);
+		}
+	}
+
+	@return $result;
+}
+
+$-coordinates: -get-coordinates();
+
+@function -get-position-on-board($file, $rank, $is-flipped) {
+	@if $is-flipped {
+		@return ("column": list.index($-reversed-files, $file), "row": list.index($-ranks, $rank));
+	}
+
+	@return ("column": list.index($-files, $file), "row": list.index($-reversed-ranks, $rank));
+}
+
+@mixin on-each-cell($is-board-flipped) {
+	@each $coordinate in $-coordinates {
+		$file: map.get($coordinate, "file");
+		$rank: map.get($coordinate, "rank");
+
+		$position: -get-position-on-board(
+			$file: $file,
+			$rank: $rank,
+			$is-flipped: $is-board-flipped,
+		);
+
+		$column: #{map.get($position, "column")};
+		$row: #{map.get($position, "row")};
+		$is-dark-cell: -is-dark-cell($file: $file, $rank: $rank);
+
+		@content ($file, $rank, $column, $row, $is-dark-cell);
+	}
+}
+
+@function -is-dark-cell($file, $rank) {
+	$is-even-file: -is-even-number(list.index($-files, $file));
+	$is-even-rank: -is-even-number(list.index($-ranks, $rank));
+
+	@return ($is-even-file and $is-even-rank) or (not $is-even-file and not $is-even-rank);
+}

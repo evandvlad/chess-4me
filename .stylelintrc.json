@@ -1,0 +1,14 @@
+{
+	"extends": "stylelint-config-standard",
+	"customSyntax": "postcss-scss",
+	"rules": {
+		"indentation": "tab",
+		"at-rule-no-unknown": [
+			true,
+			{ "ignoreAtRules": ["use", "mixin", "include", "function", "if", "return", "each", "for", "content", "error"] }
+		],
+		"declaration-block-no-redundant-longhand-properties": null,
+		"property-no-vendor-prefix": null,
+		"selector-class-pattern": null
+	}
+}

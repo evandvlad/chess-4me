@@ -1,0 +1,33 @@
+@use "./colors";
+
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+	font-size: 16px;
+	color: colors.$black;
+	font-family: "Segoe UI", sans-serif;
+}
+
+body {
+	background-color: colors.$white;
+	overflow: hidden;
+}
+
+button {
+	background: none;
+	border: none;
+	outline: none;
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}
+
+dialog {
+	border: none;
+}

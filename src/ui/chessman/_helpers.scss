@@ -1,0 +1,24 @@
+@use "sass:list";
+
+$-chessmen-colors: "white", "black";
+$-chessmen-types: "pawn", "knight", "bishop", "rook", "queen", "king";
+
+@function -get-all-chessmen() {
+	$result: ();
+
+	@each $color in $-chessmen-colors {
+		@each $type in $-chessmen-types {
+			$result: list.append($result, #{$color}-#{$type});
+		}
+	}
+
+	@return $result;
+}
+
+$-all-chessmen: -get-all-chessmen();
+
+@mixin on-each-chessman {
+	@each $chessman in $-all-chessmen {
+		@content ($chessman);
+	}
+}

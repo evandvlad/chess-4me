@@ -1,6 +1,8 @@
 node_modules
 .vscode
 dist
-build
-coverage
 todo.txt
+e2e/screenshots
+e2e/downloads
+e2e/videos
+out
