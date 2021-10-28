@@ -17,7 +17,8 @@ describe("simple cases", () => {
 
 		app.assertChessmenArrangement(initialChessmenArrangement);
 
-		gameControls.assertControlAvailability("new-game", false);
+		gameControls.assertControlAvailability("empty-board");
+		gameControls.assertControlAvailability("new-game");
 		gameControls.assertControlAvailability("flip-board");
 		gameControls.assertControlAvailability("go-back", false);
 		gameControls.assertControlAvailability("go-forward", false);
@@ -131,8 +132,6 @@ describe("simple cases", () => {
 			app.moveChessman("white-queen", "d1", "a4");
 			app.moveChessman("black-pawn", "d5", "c4");
 
-			app.clearSelection();
-
 			const sourceCoordinate = "a4";
 			const destinationCoordinate = "e8";
 
@@ -164,7 +163,6 @@ describe("simple cases", () => {
 
 		it("add chessman action is disabled if cell isn't selected", () => {
 			app.moveChessman("white-pawn", "a2", "a4");
-			app.clearSelection();
 
 			gameControls.assertControlAvailability("add-chessman", false);
 		});
@@ -215,7 +213,6 @@ describe("simple cases", () => {
 
 		it("remove action is disabled if cell isn't selected", () => {
 			app.moveChessman("white-pawn", "e2", "e4");
-			app.clearSelection();
 
 			gameControls.assertControlAvailability("remove-chessman", false);
 		});
@@ -227,9 +224,17 @@ describe("simple cases", () => {
 		});
 	});
 
-	it("new game", () => {
+	it("new game on regular mode", () => {
 		app.moveChessman("white-pawn", "e2", "e4");
-		app.newGame();
+		app.newGameOnRegularMode();
+
+		gameControls.assertControlAvailability("go-back", false);
+		gameControls.assertControlAvailability("go-forward", false);
+	});
+
+	it("new game on empty board mode", () => {
+		app.moveChessman("white-pawn", "e2", "e4");
+		app.newGameOnEmptyBoardMode();
 
 		gameControls.assertControlAvailability("go-back", false);
 		gameControls.assertControlAvailability("go-forward", false);
@@ -247,7 +252,8 @@ describe("simple cases", () => {
 		});
 
 		it("can go forward after going back", () => {
-			app.moveChessman("white-pawn", "e2", "e4");
+			app.newGameOnEmptyBoardMode();
+			app.addChessman("white-king", "e1");
 
 			gameControls.performAction("go-back");
 
@@ -256,7 +262,7 @@ describe("simple cases", () => {
 			gameControls.assertControlAvailability("go-forward", false);
 
 			gameControls.performAction("go-back");
-			app.assertChessmenArrangement(initialChessmenArrangement);
+			app.assertChessmenArrangement([]);
 		});
 
 		it("can't go forward if history rewritten", () => {

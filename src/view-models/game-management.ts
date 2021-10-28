@@ -8,12 +8,17 @@ export class GameManagement {
 	constructor() {
 		makeObservable(this);
 
-		this.game = new Game();
+		this.game = Game.createOnRegularMode();
 	}
 
 	@action
-	newGame(): void {
-		this.game = new Game();
+	newGameOnRegularMode(): void {
+		this.game = Game.createOnRegularMode();
+	}
+
+	@action
+	newGameOnEmptyBoardMode(): void {
+		this.game = Game.createOnEmptyBoardMode();
 	}
 
 	@computed

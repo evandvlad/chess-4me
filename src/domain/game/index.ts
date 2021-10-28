@@ -3,6 +3,7 @@ import { action, makeObservable, observable, computed } from "mobx";
 import type { BoardCoordinate, Chessman } from "../chess-setup";
 import type { BoardClientAPI } from "./board";
 import type { HistoryClientAPI } from "./history";
+import type { ChessmenMap } from "./chessmen";
 
 import { chessmenRegistry, areChessmenEquals, initialChessmenMap } from "./chessmen";
 import { assertTrue } from "~/utils/assert";
@@ -13,10 +14,18 @@ export class Game {
 	@observable.ref private _board: Board;
 	#history: History;
 
-	constructor() {
+	static createOnRegularMode() {
+		return new this(initialChessmenMap);
+	}
+
+	static createOnEmptyBoardMode() {
+		return new this(new Map());
+	}
+
+	private constructor(chessmenMap: ChessmenMap) {
 		makeObservable(this);
 
-		this._board = Board.createNew(initialChessmenMap);
+		this._board = Board.createNew(chessmenMap);
 
 		this.#history = new History({
 			initialRecord: {
@@ -37,7 +46,7 @@ export class Game {
 	}
 
 	get availableChessmenForAdding(): ReadonlyArray<Chessman> {
-		const chessmen = [
+		return [
 			chessmenRegistry.get("white", "queen"),
 			chessmenRegistry.get("black", "queen"),
 			chessmenRegistry.get("white", "rook"),
@@ -46,15 +55,22 @@ export class Game {
 			chessmenRegistry.get("black", "knight"),
 			chessmenRegistry.get("white", "bishop"),
 			chessmenRegistry.get("black", "bishop"),
-		];
+			chessmenRegistry.get("white", "pawn"),
+			chessmenRegistry.get("black", "pawn"),
+			chessmenRegistry.get("white", "king"),
+			chessmenRegistry.get("black", "king"),
+		].filter((chessman) => {
+			switch (chessman.type) {
+				case "pawn":
+					return this._board.getChessmanCount(chessman) < 8;
 
-		for (const pawn of [chessmenRegistry.get("white", "pawn"), chessmenRegistry.get("black", "pawn")]) {
-			if (this.#isPawnChessmanAvailableForAdding(pawn)) {
-				chessmen.push(pawn);
+				case "king":
+					return this._board.getChessmanCount(chessman) === 0;
+
+				default:
+					return true;
 			}
-		}
-
-		return chessmen;
+		});
 	}
 
 	canMoveChessman(sourceCoordinate: BoardCoordinate, destinationCoordinate: BoardCoordinate): boolean {
@@ -114,12 +130,6 @@ export class Game {
 		assertTrue(this.canRemoveChessman(coordinate), "Incorrect invariant for removing");
 		this._board = this._board.removeChessman(coordinate);
 		this.#addHistoryRecord();
-	}
-
-	#isPawnChessmanAvailableForAdding(chessman: Chessman): boolean {
-		assertTrue(chessman.type === "pawn", "Chessman is not a pawn");
-
-		return this._board.getChessmanCount(chessman) < 8;
 	}
 
 	#canAddChessman(coordinate: BoardCoordinate, chessman: Chessman): boolean {

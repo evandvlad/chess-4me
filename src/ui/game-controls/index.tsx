@@ -18,10 +18,15 @@ export const GameControls = observer(function GameControls({ gameControls }: Pro
 	return (
 		<div className={styles.controls} data-test-game-controls="">
 			<IconButton
+				title="Empty Board"
+				iconType="empty-board"
+				onClick={gameControls.emptyBoard}
+				data-test-game-control="empty-board"
+			/>
+			<IconButton
 				title="New Game"
 				iconType="new-game"
 				onClick={gameControls.newGame}
-				isDisabled={!gameControls.canNewGame}
 				data-test-game-control="new-game"
 			/>
 			<IconButton
@@ -34,14 +39,14 @@ export const GameControls = observer(function GameControls({ gameControls }: Pro
 				title="Go Back"
 				iconType="go-back"
 				onClick={gameControls.goBack}
-				isDisabled={!gameControls.canGoBack}
+				isDisabled={!gameControls.isGoBackActionAvailable}
 				data-test-game-control="go-back"
 			/>
 			<IconButton
 				title="Go Forward"
 				iconType="go-forward"
 				onClick={gameControls.goForward}
-				isDisabled={!gameControls.canGoForward}
+				isDisabled={!gameControls.isGoForwardActionAvailable}
 				data-test-game-control="go-forward"
 			/>
 			<ReactiveAddChessmanControl
@@ -52,7 +57,7 @@ export const GameControls = observer(function GameControls({ gameControls }: Pro
 						title="Add Chessman"
 						iconType="add-chessman"
 						onClick={onClick}
-						isDisabled={!gameControls.canAddChessman}
+						isDisabled={!gameControls.isAddChessmanActionAvailable}
 						data-test-game-control="add-chessman"
 					/>
 				)}
@@ -61,7 +66,7 @@ export const GameControls = observer(function GameControls({ gameControls }: Pro
 				title="Remove Chessman"
 				iconType="remove-chessman"
 				onClick={gameControls.removeChessman}
-				isDisabled={!gameControls.canRemoveChessman}
+				isDisabled={!gameControls.isRemoveChessmanActionAvailable}
 				data-test-game-control="remove-chessman"
 			/>
 		</div>
