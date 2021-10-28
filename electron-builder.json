@@ -1,0 +1,8 @@
+{
+	"directories": {
+		"buildResources": "dist",
+		"output": "out"
+	},
+	"files": ["main.js", "dist/**/*"],
+	"icon": "icon.png"
+}

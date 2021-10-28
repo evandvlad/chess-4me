@@ -1,0 +1,18 @@
+{
+	"baseUrl": "http://localhost:5000",
+	"watchForFileChanges": false,
+	"supportFile": false,
+	"fixturesFolder": false,
+	"integrationFolder": "e2e/__tests__",
+	"downloadsFolder": "e2e/downloads",
+	"pluginsFile": "e2e/cypress-plugins.ts",
+	"screenshotsFolder": "e2e/screenshots",
+	"videosFolder": "e2e/videos",
+	"video": false,
+	"testFiles": "**/*.test.ts",
+	"component": {
+		"pluginsFile": "cypress-plugins.ts",
+		"testFiles": "**/__tests__/*.test.ts",
+		"componentFolder": "src"
+	}
+}

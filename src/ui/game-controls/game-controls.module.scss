@@ -1,0 +1,29 @@
+@use "../colors";
+
+$-icon-types: "new-game", "flip-board", "go-back", "go-forward", "add-chessman", "remove-chessman";
+
+.controls {
+	display: flex;
+	height: 100%;
+	justify-content: center;
+}
+
+.iconButton {
+	aspect-ratio: 1;
+	height: 100%;
+	margin: 0 2%;
+	background-color: colors.$brown-dark;
+
+	@each $icon-type in $-icon-types {
+		&[data-style-icon-type="#{$icon-type}"] {
+			$image: url("./#{$icon-type}-icon.svg");
+
+			-webkit-mask-image: $image;
+			mask-image: $image;
+		}
+	}
+
+	&:disabled {
+		opacity: 60%;
+	}
+}
