@@ -1,6 +1,6 @@
 @use "../colors";
 
-$-icon-types: "new-game", "flip-board", "go-back", "go-forward", "add-chessman", "remove-chessman";
+$-icon-types: "empty-board", "new-game", "flip-board", "go-back", "go-forward", "add-chessman", "remove-chessman";
 
 .controls {
 	display: flex;

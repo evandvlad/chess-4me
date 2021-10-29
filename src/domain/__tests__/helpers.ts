@@ -97,8 +97,15 @@ export function expectChessmenArrangement({
 	});
 }
 
-export function expectNewGameState(game: Game): void {
+export function expectStateOfNewGameOnRegularMode(game: Game): void {
 	expectChessmenArrangement({ game });
+	expect(game.history.canGoBack).to.equal(false);
+}
+
+export function expectStateOfNewGameOnEmptyBoardMode(game: Game): void {
+	const isEmptyBoard = data.boardCoordinates.every((coordinate) => !game.board.hasChessmanByCoordinate(coordinate));
+
+	expect(isEmptyBoard).to.equal(true);
 	expect(game.history.canGoBack).to.equal(false);
 }
 

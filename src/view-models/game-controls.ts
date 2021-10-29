@@ -23,31 +23,25 @@ export class GameControls {
 	}
 
 	@computed
-	get canNewGame(): boolean {
+	get isGoBackActionAvailable(): boolean {
 		const { history } = this.#gameManagement.currentGame;
 		return history.canGoBack;
 	}
 
 	@computed
-	get canGoBack(): boolean {
-		const { history } = this.#gameManagement.currentGame;
-		return history.canGoBack;
-	}
-
-	@computed
-	get canGoForward(): boolean {
+	get isGoForwardActionAvailable(): boolean {
 		const { history } = this.#gameManagement.currentGame;
 		return history.canGoForward;
 	}
 
 	@computed
-	get canAddChessman(): boolean {
+	get isAddChessmanActionAvailable(): boolean {
 		const { board } = this.#gameManagement.currentGame;
 		return this.#mainBoard.hasSelectedCell && !board.hasChessmanByCoordinate(this.#mainBoard.selectedCell!);
 	}
 
 	@computed
-	get canRemoveChessman(): boolean {
+	get isRemoveChessmanActionAvailable(): boolean {
 		const { currentGame } = this.#gameManagement;
 		return this.#mainBoard.hasSelectedCell && currentGame.canRemoveChessman(this.#mainBoard.selectedCell!);
 	}
@@ -57,38 +51,44 @@ export class GameControls {
 		return currentGame.availableChessmenForAdding;
 	};
 
+	emptyBoard = (): void => {
+		this.#gameManagement.newGameOnEmptyBoardMode();
+		this.#mainBoard.clearSelection();
+	};
+
 	newGame = (): void => {
-		assertTrue(this.canNewGame, "'New Game' action isn't allowed");
-		this.#gameManagement.newGame();
+		this.#gameManagement.newGameOnRegularMode();
 		this.#mainBoard.clearSelection();
 	};
 
 	goBack = (): void => {
-		assertTrue(this.canGoBack, "'Go Back' action isn't allowed");
+		assertTrue(this.isGoBackActionAvailable, "'Go Back' action isn't available");
 
 		const { history } = this.#gameManagement.currentGame;
 		history.goBack();
 	};
 
 	goForward = (): void => {
-		assertTrue(this.canGoForward, "'Go Forward' action isn't allowed");
+		assertTrue(this.isGoForwardActionAvailable, "'Go Forward' action isn't available");
 
 		const { history } = this.#gameManagement.currentGame;
 		history.goForward();
 	};
 
 	addChessman = (chessman: Chessman): void => {
-		assertTrue(this.canAddChessman, "'Add Chessman' action isn't allowed");
+		assertTrue(this.isAddChessmanActionAvailable, "'Add Chessman' action isn't available");
 
 		const { currentGame } = this.#gameManagement;
 		currentGame.addChessman(this.#mainBoard.selectedCell!, chessman);
+		this.#mainBoard.clearSelection();
 	};
 
 	removeChessman = (): void => {
-		assertTrue(this.canRemoveChessman, "'Remove Chessman' action isn't allowed");
+		assertTrue(this.isRemoveChessmanActionAvailable, "'Remove Chessman' action isn't available");
 
 		const { currentGame } = this.#gameManagement;
 		currentGame.removeChessman(this.#mainBoard.selectedCell!);
+		this.#mainBoard.clearSelection();
 	};
 
 	flipBoard = (): void => {

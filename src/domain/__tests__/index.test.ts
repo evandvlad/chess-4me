@@ -1,7 +1,12 @@
 import type { BoardCoordinate, Chessman } from "..";
 
 import { Game, boardCoordinates } from "..";
-import { expectChessmenArrangement, expectNewGameState, expectGameBoardStatesAreSame } from "./helpers";
+import {
+	expectChessmenArrangement,
+	expectStateOfNewGameOnRegularMode,
+	expectStateOfNewGameOnEmptyBoardMode,
+	expectGameBoardStatesAreSame,
+} from "./helpers";
 
 describe("domain", () => {
 	it("all board coordinates are unique", () => {
@@ -9,28 +14,44 @@ describe("domain", () => {
 		expect(boardCoordinates.length).to.equal(coordinatesSet.size);
 	});
 
-	it("new game state is correct", () => {
-		const game = new Game();
-		expectNewGameState(game);
+	it("new game on regular mode has correct state", () => {
+		const game = Game.createOnRegularMode();
+		expectStateOfNewGameOnRegularMode(game);
+	});
+
+	it("new game on empty board mode has correct state", () => {
+		const game = Game.createOnEmptyBoardMode();
+		expectStateOfNewGameOnEmptyBoardMode(game);
 	});
 
 	describe("available chessmen for adding", () => {
-		it("both Kings aren't available for adding", () => {
-			const game = new Game();
+		it("both Kings aren't available for adding if they are on board", () => {
+			const game = Game.createOnRegularMode();
 			const kings = game.availableChessmenForAdding.filter(({ type }) => type === "king");
 
 			expect(kings.length).to.equal(0);
 		});
 
+		it("King is available for adding if it isn't on board", () => {
+			const game = Game.createOnEmptyBoardMode();
+			game.addChessman("a1", { color: "white", type: "king" });
+
+			const blackKingIsAvailable = game.availableChessmenForAdding.some(
+				({ color, type }) => color === "black" && type === "king",
+			);
+
+			expect(blackKingIsAvailable).to.equal(true);
+		});
+
 		it("Pawns aren't available if all exists on board", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 			const pawns = game.availableChessmenForAdding.filter(({ type }) => type === "pawn");
 
 			expect(pawns.length).to.equal(0);
 		});
 
 		it("Pawn is available if their less than 8", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			game.removeChessman("e2");
 			const pawns = game.availableChessmenForAdding.filter(({ type }) => type === "pawn");
@@ -50,8 +71,33 @@ describe("domain", () => {
 			{ color: "black", type: "bishop" },
 			{ color: "black", type: "queen" },
 		].forEach(({ color, type }) => {
-			it(`chessmen '${color}-${type}' is available for adding on new game`, () => {
-				const game = new Game();
+			it(`chessmen '${color}-${type}' is available for adding on new game (regular mode)`, () => {
+				const game = Game.createOnRegularMode();
+				const availableChessmen = game.availableChessmenForAdding;
+				const isAvailableForAdding = availableChessmen.some(
+					(chessman) => chessman.color === color && chessman.type === type,
+				);
+
+				expect(isAvailableForAdding).to.equal(true);
+			});
+		});
+
+		[
+			{ color: "white", type: "rook" },
+			{ color: "white", type: "knight" },
+			{ color: "white", type: "bishop" },
+			{ color: "white", type: "queen" },
+			{ color: "white", type: "pawn" },
+			{ color: "white", type: "king" },
+			{ color: "black", type: "rook" },
+			{ color: "black", type: "knight" },
+			{ color: "black", type: "bishop" },
+			{ color: "black", type: "queen" },
+			{ color: "black", type: "pawn" },
+			{ color: "black", type: "king" },
+		].forEach(({ color, type }) => {
+			it(`chessmen '${color}-${type}' is available for adding on new game (empty board mode)`, () => {
+				const game = Game.createOnEmptyBoardMode();
 				const availableChessmen = game.availableChessmenForAdding;
 				const isAvailableForAdding = availableChessmen.some(
 					(chessman) => chessman.color === color && chessman.type === type,
@@ -75,15 +121,15 @@ describe("domain", () => {
 		}
 
 		it("exception if cell is not empty", () => {
-			expectIncorrectAdding(new Game(), "e2", { color: "white", type: "rook" });
+			expectIncorrectAdding(Game.createOnRegularMode(), "e2", { color: "white", type: "rook" });
 		});
 
 		it("exception if chessman is not available for adding", () => {
-			expectIncorrectAdding(new Game(), "e4", { color: "white", type: "king" });
+			expectIncorrectAdding(Game.createOnRegularMode(), "e4", { color: "white", type: "king" });
 		});
 
 		it("adding chessman successfully", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 			const chessman = game.availableChessmenForAdding[0]!;
 			const coordinate = "d3";
 
@@ -125,15 +171,15 @@ describe("domain", () => {
 		}
 
 		it("can't move if chessman wasn't selected", () => {
-			expectIncorrectMoving(new Game(), "e4", "e5");
+			expectIncorrectMoving(Game.createOnRegularMode(), "e4", "e5");
 		});
 
 		it("can't beat own chessman", () => {
-			expectIncorrectMoving(new Game(), "b1", "d2");
+			expectIncorrectMoving(Game.createOnRegularMode(), "b1", "d2");
 		});
 
 		it("can't beat a King", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			game.moveChessman("d2", "d4");
 			game.moveChessman("e7", "e5");
@@ -145,7 +191,7 @@ describe("domain", () => {
 		});
 
 		it("can move to empty cell", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			expectCorrectMoving(game, "e2", "e4");
 			expectChessmenArrangement({
@@ -159,7 +205,7 @@ describe("domain", () => {
 		});
 
 		it("can beat not own chessman", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			game.moveChessman("e2", "e4");
 			game.moveChessman("d7", "d5");
@@ -195,17 +241,24 @@ describe("domain", () => {
 		}
 
 		it("can't remove if chessman wasn't selected", () => {
-			expectIncorrectRemoving(new Game(), "e4");
+			expectIncorrectRemoving(Game.createOnRegularMode(), "e4");
 		});
 
 		(
 			[
-				["white", "e1"],
-				["black", "e8"],
-			] as Array<[string, BoardCoordinate]>
-		).forEach(([color, coordinate]) => {
-			it(`can't remove '${color}' King`, () => {
-				const game = new Game();
+				[{ color: "white", type: "king" }, "e1"],
+				[{ color: "black", type: "king" }, "e8"],
+			] as Array<[Chessman, BoardCoordinate]>
+		).forEach(([chessman, coordinate]) => {
+			it(`can't remove '${chessman.color}' King (regular mode of game)`, () => {
+				const game = Game.createOnRegularMode();
+
+				expectIncorrectRemoving(game, coordinate);
+			});
+
+			it(`can't remove '${chessman.color}' King also after adding (empty board mode of game)`, () => {
+				const game = Game.createOnEmptyBoardMode();
+				game.addChessman(coordinate, chessman);
 
 				expectIncorrectRemoving(game, coordinate);
 			});
@@ -230,8 +283,8 @@ describe("domain", () => {
 				"h1",
 			] as BoardCoordinate[]
 		).forEach((coordinate) => {
-			it(`can remove chessman on '${coordinate}' on new game`, () => {
-				const game = new Game();
+			it(`can remove chessman on '${coordinate}' on new game (regular mode)`, () => {
+				const game = Game.createOnRegularMode();
 
 				expectCorrectRemoving(game, coordinate);
 				expectChessmenArrangement({
@@ -248,7 +301,7 @@ describe("domain", () => {
 			[
 				"adding",
 				() => {
-					const game = new Game();
+					const game = Game.createOnRegularMode();
 					game.addChessman("h3", { color: "white", type: "bishop" });
 					return game;
 				},
@@ -256,7 +309,7 @@ describe("domain", () => {
 			[
 				"moving",
 				() => {
-					const game = new Game();
+					const game = Game.createOnRegularMode();
 					game.moveChessman("e2", "e4");
 					return game;
 				},
@@ -264,18 +317,21 @@ describe("domain", () => {
 			[
 				"removing",
 				() => {
-					const game = new Game();
+					const game = Game.createOnRegularMode();
 					game.removeChessman("a2");
 					return game;
 				},
 			],
 		];
 
-		it("can't go back or forward on new game", () => {
-			const game = new Game();
-
-			expect(game.history.canGoBack).to.equal(false);
-			expect(game.history.canGoForward).to.equal(false);
+		[
+			["regular mode", Game.createOnRegularMode()] as const,
+			["empty board mode", Game.createOnEmptyBoardMode()] as const,
+		].forEach(([modeLabel, game]) => {
+			it(`can't go back or forward on new game (${modeLabel})`, () => {
+				expect(game.history.canGoBack).to.equal(false);
+				expect(game.history.canGoForward).to.equal(false);
+			});
 		});
 
 		simpleSingleActions.forEach(([name, action]) => {
@@ -286,15 +342,15 @@ describe("domain", () => {
 		});
 
 		it("can't go forward after first action", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			game.moveChessman("e2", "e4");
 
 			expect(game.history.canGoForward).to.equal(false);
 		});
 
-		it("can go forward after first action & going back", () => {
-			const game = new Game();
+		it("can go forward after first action & going back (regular mode)", () => {
+			const game = Game.createOnRegularMode();
 
 			game.moveChessman("e2", "e4");
 			game.history.goBack();
@@ -302,8 +358,17 @@ describe("domain", () => {
 			expect(game.history.canGoForward).to.equal(true);
 		});
 
+		it("can go forward after first action & going back (empty board mode)", () => {
+			const game = Game.createOnEmptyBoardMode();
+
+			game.addChessman("e2", { color: "white", type: "pawn" });
+			game.history.goBack();
+
+			expect(game.history.canGoForward).to.equal(true);
+		});
+
 		it("forward steps resets after new action", () => {
-			const game = new Game();
+			const game = Game.createOnRegularMode();
 
 			game.moveChessman("e2", "e4");
 			game.moveChessman("e7", "e5");
@@ -317,7 +382,7 @@ describe("domain", () => {
 		});
 
 		simpleSingleActions.forEach(([name, action]) => {
-			it(`go back after first '${name}' action translate state to new game`, () => {
+			it(`go back after first '${name}' action translate state to new game (regular mode)`, () => {
 				const game = action();
 
 				game.history.goBack();
@@ -330,8 +395,8 @@ describe("domain", () => {
 		});
 
 		it("correct state after go back & go forward", () => {
-			const game1 = new Game();
-			const game2 = new Game();
+			const game1 = Game.createOnRegularMode();
+			const game2 = Game.createOnRegularMode();
 
 			game1.moveChessman("e2", "e4");
 			game2.moveChessman("e2", "e4");

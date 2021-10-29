@@ -9,7 +9,14 @@ type ChessmanType = "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
 
 export type Chessman = `${ChessmanColor}-${ChessmanType}`;
 
-export type GameControlName = "new-game" | "flip-board" | "go-back" | "go-forward" | "add-chessman" | "remove-chessman";
+export type GameControlName =
+	| "empty-board"
+	| "new-game"
+	| "flip-board"
+	| "go-back"
+	| "go-forward"
+	| "add-chessman"
+	| "remove-chessman";
 
 export type BoardDirection = "regular" | "flipped";
 

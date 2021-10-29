@@ -1,4 +1,4 @@
-import type { Chessman, ChessmenArrangement } from "../app-values";
+import type { ChessmenArrangement } from "../app-values";
 
 import { app } from "../app-components";
 import { initialChessmenArrangement } from "../app-values";
@@ -72,8 +72,6 @@ describe("complex cases", () => {
 	});
 
 	it("set custom position", () => {
-		const kings: Chessman[] = ["white-king", "black-king"];
-
 		const chessmenArrangement: ChessmenArrangement = [
 			["e3", "white-king"],
 			["d6", "black-king"],
@@ -92,31 +90,19 @@ describe("complex cases", () => {
 			["h6", "black-pawn"],
 		];
 
-		initialChessmenArrangement
-			.filter(([, chessman]) => !kings.includes(chessman))
-			.forEach(([coordinate, chessman]) => {
-				app.removeChessman(chessman, coordinate);
-			});
+		app.newGameOnEmptyBoardMode();
 
 		chessmenArrangement.forEach(([coordinate, chessman]) => {
-			if (chessman === "white-king") {
-				app.moveChessman(chessman, "e1", coordinate);
-				return;
-			}
-
-			if (chessman === "black-king") {
-				app.moveChessman(chessman, "e8", coordinate);
-				return;
-			}
-
 			app.addChessman(chessman, coordinate);
 		});
+
+		app.assertChessmenArrangement(chessmenArrangement);
 	});
 
 	it("playing with going back & forward", () => {
 		app.moveChessman("white-pawn", "d2", "d4");
 
-		app.newGame();
+		app.newGameOnRegularMode();
 		app.flipBoard();
 
 		app.moveChessman("white-pawn", "e2", "e4");

@@ -24,7 +24,6 @@ export class App {
 
 	moveChessman(chessman: Chessman, sourceCoordinate: BoardCoordinate, destinationCoordinate: BoardCoordinate): void {
 		this.#board.assertChessman(chessman, sourceCoordinate);
-		this.clearSelection();
 		this.#board.selectCell(sourceCoordinate);
 		this.#board.assertSelectedCell(sourceCoordinate);
 		this.#board.selectCell(destinationCoordinate);
@@ -35,7 +34,6 @@ export class App {
 
 	addChessman(chessman: Chessman, coordinate: BoardCoordinate): void {
 		this.#board.assertChessman(null, coordinate);
-		this.clearSelection();
 		this.#board.selectCell(coordinate);
 		this.#gameControls.assertControlAvailability("add-chessman");
 		this.#gameControls.performAction("add-chessman");
@@ -44,18 +42,17 @@ export class App {
 		this.#addChessmanDialog.assertVisibility(false);
 		this.#gameControls.assertControlAvailability("add-chessman", false);
 		this.#board.assertChessman(chessman, coordinate);
-		this.#board.assertSelectedCell(coordinate);
+		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(coordinate);
 	}
 
 	removeChessman(chessman: Chessman, coordinate: BoardCoordinate): void {
-		this.clearSelection();
 		this.#board.assertChessman(chessman, coordinate);
 		this.#board.selectCell(coordinate);
 		this.#board.assertSelectedCell(coordinate);
 		this.#gameControls.assertControlAvailability("remove-chessman");
 		this.#gameControls.performAction("remove-chessman");
-		this.#board.assertSelectedCell(coordinate);
+		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(coordinate);
 		this.#gameControls.assertControlAvailability("remove-chessman", false);
 	}
@@ -68,15 +65,20 @@ export class App {
 		});
 	}
 
-	newGame(): void {
-		this.#gameControls.assertControlAvailability("new-game");
+	newGameOnRegularMode(): void {
 		this.#gameControls.performAction("new-game");
 
 		this.assertChessmenArrangement(initialChessmenArrangement);
 		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(null);
+	}
 
-		this.#gameControls.assertControlAvailability("new-game", false);
+	newGameOnEmptyBoardMode(): void {
+		this.#gameControls.performAction("empty-board");
+
+		this.assertChessmenArrangement([]);
+		this.#board.assertSelectedCell(null);
+		this.#board.assertFocusedCell(null);
 	}
 
 	goBack(): void {
@@ -85,20 +87,11 @@ export class App {
 	}
 
 	goForward(): void {
-		this.#gameControls.assertControlAvailability("go-forward");
 		this.#gameControls.performAction("go-forward");
 	}
 
 	flipBoard(): void {
 		this.#gameControls.assertControlAvailability("flip-board");
 		this.#gameControls.performAction("flip-board");
-	}
-
-	clearSelection(): void {
-		this.#board.getSelectedCell().then(({ value }) => {
-			if (value !== null) {
-				this.#board.selectCell(value);
-			}
-		});
 	}
 }

@@ -25,7 +25,7 @@
 		}
 	},
 	"rules": {
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"react/button-has-type": "error",
 		"react/no-array-index-key": "error",
 		"cypress/no-pause": "error"
