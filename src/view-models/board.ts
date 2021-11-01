@@ -5,7 +5,7 @@ import type { GameManagement } from "./game-management";
 
 import { boardCoordinates } from "~/domain";
 
-export class MainBoard {
+export class Board {
 	@observable selectedCell: BoardCoordinate | null = null;
 	@observable isFlipped = false;
 

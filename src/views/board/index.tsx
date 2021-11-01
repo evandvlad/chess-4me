@@ -2,9 +2,9 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 
 import type { BoardCoordinate, Chessman as IChessman } from "~/domain";
-import type { MainBoard } from "~/view-models";
+import type { Board as IBoard } from "~/view-models";
 
-import { cssClassNames } from "~/utils/dom";
+import { cssClassNames } from "~/utils/css-class-names";
 import { Chessman } from "../chessman";
 
 import styles from "./board.module.scss";
@@ -22,7 +22,7 @@ function Cell({
 	chessman: IChessman | null;
 	onClick: (coordinate: BoardCoordinate) => void;
 }): JSX.Element {
-	const className = cssClassNames(styles.cell!, {
+	const className = cssClassNames(styles.cell, {
 		[styles.selected!]: isSelected,
 		[styles.focused!]: isFocused,
 	});
@@ -51,22 +51,22 @@ function Cell({
 	);
 }
 
-export const Board = observer(function Board({ mainBoard }: { mainBoard: MainBoard }): JSX.Element {
-	const boardCells = mainBoard.coordinates.map((coordinate) => (
+export const Board = observer(function Board({ board }: { board: IBoard }): JSX.Element {
+	const boardCells = board.coordinates.map((coordinate) => (
 		<Cell
 			key={coordinate}
 			coordinate={coordinate}
-			isSelected={mainBoard.isCellSelected(coordinate)}
-			isFocused={mainBoard.isCellFocused(coordinate)}
-			chessman={mainBoard.getChessmanByCoordinate(coordinate)}
-			onClick={mainBoard.selectCell}
+			isSelected={board.isCellSelected(coordinate)}
+			isFocused={board.isCellFocused(coordinate)}
+			chessman={board.getChessmanByCoordinate(coordinate)}
+			onClick={board.selectCell}
 		/>
 	));
 
-	const className = cssClassNames(styles.board!, { [styles.flipped!]: mainBoard.isFlipped });
+	const className = cssClassNames(styles.board, { [styles.flipped!]: board.isFlipped });
 
 	return (
-		<div className={className} data-test-board={mainBoard.isFlipped ? "flipped" : "regular"}>
+		<div className={className} data-test-board={board.isFlipped ? "flipped" : "regular"}>
 			{boardCells}
 		</div>
 	);

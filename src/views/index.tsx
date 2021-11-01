@@ -3,7 +3,8 @@ import { render } from "react-dom";
 
 import { App } from "~/view-models";
 import { Board } from "./board";
-import { GameControls } from "./game-controls";
+import { Controls } from "./controls";
+import { History } from "./history";
 
 import "./global.scss";
 import styles from "./main.module.scss";
@@ -31,11 +32,14 @@ function Main(): JSX.Element {
 
 	return (
 		<div className={styles.site}>
-			<div className={styles.mainBoard}>
-				<Board mainBoard={app.mainBoard} />
+			<div className={styles.board}>
+				<Board board={app.board} />
 			</div>
-			<div className={styles.gameControls}>
-				<GameControls gameControls={app.gameControls} />
+			<div className={styles.controls}>
+				<Controls controls={app.controls} />
+			</div>
+			<div className={styles.history}>
+				<History history={app.history} />
 			</div>
 		</div>
 	);

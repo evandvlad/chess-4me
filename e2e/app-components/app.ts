@@ -1,25 +1,29 @@
-import type { BoardCoordinate, Chessman, ChessmenArrangement } from "../app-values";
+import type { BoardCoordinate, Chessman, ChessmenArrangement, HistoryItemValue } from "../app-values";
 import type { AddChessmanDialog } from "./add-chessman-dialog";
 import type { Board } from "./board";
-import type { GameControls } from "./game-controls";
+import type { Controls } from "./controls";
+import type { History } from "./history";
 
 import { boardCoordinates, initialChessmenArrangement } from "../app-values";
 
 interface Parameters {
 	board: Board;
-	gameControls: GameControls;
+	controls: Controls;
 	addChessmanDialog: AddChessmanDialog;
+	history: History;
 }
 
 export class App {
 	readonly #board: Board;
-	readonly #gameControls: GameControls;
+	readonly #controls: Controls;
 	readonly #addChessmanDialog: AddChessmanDialog;
+	readonly #history: History;
 
-	constructor({ board, gameControls, addChessmanDialog }: Parameters) {
+	constructor({ board, controls, addChessmanDialog, history }: Parameters) {
 		this.#board = board;
-		this.#gameControls = gameControls;
+		this.#controls = controls;
 		this.#addChessmanDialog = addChessmanDialog;
+		this.#history = history;
 	}
 
 	moveChessman(chessman: Chessman, sourceCoordinate: BoardCoordinate, destinationCoordinate: BoardCoordinate): void {
@@ -35,12 +39,12 @@ export class App {
 	addChessman(chessman: Chessman, coordinate: BoardCoordinate): void {
 		this.#board.assertChessman(null, coordinate);
 		this.#board.selectCell(coordinate);
-		this.#gameControls.assertControlAvailability("add-chessman");
-		this.#gameControls.performAction("add-chessman");
+		this.#controls.assertControlAvailability("add-chessman");
+		this.#controls.performAction("add-chessman");
 		this.#addChessmanDialog.assertVisibility();
 		this.#addChessmanDialog.select(chessman);
 		this.#addChessmanDialog.assertVisibility(false);
-		this.#gameControls.assertControlAvailability("add-chessman", false);
+		this.#controls.assertControlAvailability("add-chessman", false);
 		this.#board.assertChessman(chessman, coordinate);
 		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(coordinate);
@@ -50,11 +54,11 @@ export class App {
 		this.#board.assertChessman(chessman, coordinate);
 		this.#board.selectCell(coordinate);
 		this.#board.assertSelectedCell(coordinate);
-		this.#gameControls.assertControlAvailability("remove-chessman");
-		this.#gameControls.performAction("remove-chessman");
+		this.#controls.assertControlAvailability("remove-chessman");
+		this.#controls.performAction("remove-chessman");
 		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(coordinate);
-		this.#gameControls.assertControlAvailability("remove-chessman", false);
+		this.#controls.assertControlAvailability("remove-chessman", false);
 	}
 
 	assertChessmenArrangement(chessmenArrangement: ChessmenArrangement): void {
@@ -66,32 +70,57 @@ export class App {
 	}
 
 	newGameOnRegularMode(): void {
-		this.#gameControls.performAction("new-game");
+		this.#controls.performAction("new-game");
 
 		this.assertChessmenArrangement(initialChessmenArrangement);
 		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(null);
+
+		this.#history.assertItems([]);
 	}
 
 	newGameOnEmptyBoardMode(): void {
-		this.#gameControls.performAction("empty-board");
+		this.#controls.performAction("empty-board");
 
 		this.assertChessmenArrangement([]);
 		this.#board.assertSelectedCell(null);
 		this.#board.assertFocusedCell(null);
+
+		this.#history.assertItems([]);
 	}
 
 	goBack(): void {
-		this.#gameControls.assertControlAvailability("go-back");
-		this.#gameControls.performAction("go-back");
+		this.#controls.assertControlAvailability("go-back");
+		this.#controls.performAction("go-back");
 	}
 
 	goForward(): void {
-		this.#gameControls.performAction("go-forward");
+		this.#controls.performAction("go-forward");
+	}
+
+	goByHistoryNumber(num: number): void {
+		this.#history.selectByNumber(num);
+		this.#history.assertCurrentItemNumber(num);
 	}
 
 	flipBoard(): void {
-		this.#gameControls.assertControlAvailability("flip-board");
-		this.#gameControls.performAction("flip-board");
+		this.#controls.assertControlAvailability("flip-board");
+		this.#controls.performAction("flip-board");
+	}
+
+	assertHistory(values: HistoryItemValue[], currentItem: number | undefined) {
+		const valuesLength = values.length;
+
+		const historyItems = values.map((value, index) => {
+			const num = valuesLength - index;
+
+			return {
+				num,
+				value,
+				isCurrent: num === currentItem,
+			};
+		});
+
+		this.#history.assertItems(historyItems);
 	}
 }

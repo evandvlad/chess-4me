@@ -1,0 +1,53 @@
+@use "../colors";
+
+.list {
+	display: flex;
+	flex-wrap: wrap;
+	max-height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	&:empty::before {
+		content: "Empty history";
+		color: colors.$gray-middle;
+		font-style: italic;
+		padding: 5px 0 0;
+	}
+}
+
+.item {
+	user-select: none;
+	min-width: 85px;
+}
+
+.link {
+	display: flex;
+	align-items: center;
+	padding: 2px 0;
+	cursor: pointer;
+	border-bottom: 1px dashed transparent;
+	width: fit-content;
+	opacity: 60%;
+
+	&.current {
+		border-bottom-color: colors.$black;
+		opacity: 100%;
+		cursor: default;
+	}
+}
+
+.content {
+	display: flex;
+	align-items: center;
+}
+
+.chessman {
+	$size: 16px;
+
+	width: $size;
+	height: $size;
+}

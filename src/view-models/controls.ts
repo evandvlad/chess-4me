@@ -1,25 +1,20 @@
 import { makeObservable, computed } from "mobx";
 
 import type { GameManagement } from "./game-management";
-import type { MainBoard } from "./main-board";
+import type { Board } from "./board";
 import type { Chessman } from "~/domain";
 
-import { assertTrue } from "~/utils/assert";
+import { assert } from "~/utils/assert";
 
-interface Params {
-	gameManagement: GameManagement;
-	mainBoard: MainBoard;
-}
-
-export class GameControls {
+export class Controls {
 	#gameManagement: GameManagement;
-	#mainBoard: MainBoard;
+	#board: Board;
 
-	constructor({ gameManagement, mainBoard }: Params) {
+	constructor(gameManagement: GameManagement, board: Board) {
 		makeObservable(this);
 
 		this.#gameManagement = gameManagement;
-		this.#mainBoard = mainBoard;
+		this.#board = board;
 	}
 
 	@computed
@@ -37,13 +32,13 @@ export class GameControls {
 	@computed
 	get isAddChessmanActionAvailable(): boolean {
 		const { board } = this.#gameManagement.currentGame;
-		return this.#mainBoard.hasSelectedCell && !board.hasChessmanByCoordinate(this.#mainBoard.selectedCell!);
+		return this.#board.hasSelectedCell && !board.hasChessmanByCoordinate(this.#board.selectedCell!);
 	}
 
 	@computed
 	get isRemoveChessmanActionAvailable(): boolean {
 		const { currentGame } = this.#gameManagement;
-		return this.#mainBoard.hasSelectedCell && currentGame.canRemoveChessman(this.#mainBoard.selectedCell!);
+		return this.#board.hasSelectedCell && currentGame.canRemoveChessman(this.#board.selectedCell!);
 	}
 
 	getAvailableChessmenForAdding = (): ReadonlyArray<Chessman> => {
@@ -53,45 +48,45 @@ export class GameControls {
 
 	emptyBoard = (): void => {
 		this.#gameManagement.newGameOnEmptyBoardMode();
-		this.#mainBoard.clearSelection();
+		this.#board.clearSelection();
 	};
 
 	newGame = (): void => {
 		this.#gameManagement.newGameOnRegularMode();
-		this.#mainBoard.clearSelection();
+		this.#board.clearSelection();
 	};
 
 	goBack = (): void => {
-		assertTrue(this.isGoBackActionAvailable, "'Go Back' action isn't available");
+		assert(this.isGoBackActionAvailable, "'Go Back' action isn't available");
 
 		const { history } = this.#gameManagement.currentGame;
 		history.goBack();
 	};
 
 	goForward = (): void => {
-		assertTrue(this.isGoForwardActionAvailable, "'Go Forward' action isn't available");
+		assert(this.isGoForwardActionAvailable, "'Go Forward' action isn't available");
 
 		const { history } = this.#gameManagement.currentGame;
 		history.goForward();
 	};
 
 	addChessman = (chessman: Chessman): void => {
-		assertTrue(this.isAddChessmanActionAvailable, "'Add Chessman' action isn't available");
+		assert(this.isAddChessmanActionAvailable, "'Add Chessman' action isn't available");
 
 		const { currentGame } = this.#gameManagement;
-		currentGame.addChessman(this.#mainBoard.selectedCell!, chessman);
-		this.#mainBoard.clearSelection();
+		currentGame.addChessman(this.#board.selectedCell!, chessman);
+		this.#board.clearSelection();
 	};
 
 	removeChessman = (): void => {
-		assertTrue(this.isRemoveChessmanActionAvailable, "'Remove Chessman' action isn't available");
+		assert(this.isRemoveChessmanActionAvailable, "'Remove Chessman' action isn't available");
 
 		const { currentGame } = this.#gameManagement;
-		currentGame.removeChessman(this.#mainBoard.selectedCell!);
-		this.#mainBoard.clearSelection();
+		currentGame.removeChessman(this.#board.selectedCell!);
+		this.#board.clearSelection();
 	};
 
 	flipBoard = (): void => {
-		this.#mainBoard.flip();
+		this.#board.flip();
 	};
 }

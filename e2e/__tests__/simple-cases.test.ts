@@ -1,8 +1,9 @@
-import type { PositionOnScreen } from "../utils";
+import type { PositionOnScreen } from "../utils/position-on-screen";
 import type { BoardCoordinate, Chessman } from "../app-values";
 
-import { comparePositionsOnScreens, forceTypify } from "../utils";
-import { board, gameControls, app, addChessmanDialog } from "../app-components";
+import { comparePositionsOnScreens } from "../utils/position-on-screen";
+import { forceTypify } from "../utils/force-typify";
+import { board, controls, app, addChessmanDialog, history } from "../app-components";
 import { initialChessmenArrangement, allChessmen } from "../app-values";
 
 describe("simple cases", () => {
@@ -17,13 +18,15 @@ describe("simple cases", () => {
 
 		app.assertChessmenArrangement(initialChessmenArrangement);
 
-		gameControls.assertControlAvailability("empty-board");
-		gameControls.assertControlAvailability("new-game");
-		gameControls.assertControlAvailability("flip-board");
-		gameControls.assertControlAvailability("go-back", false);
-		gameControls.assertControlAvailability("go-forward", false);
-		gameControls.assertControlAvailability("add-chessman", false);
-		gameControls.assertControlAvailability("remove-chessman", false);
+		controls.assertControlAvailability("empty-board");
+		controls.assertControlAvailability("new-game");
+		controls.assertControlAvailability("flip-board");
+		controls.assertControlAvailability("go-back", false);
+		controls.assertControlAvailability("go-forward", false);
+		controls.assertControlAvailability("add-chessman", false);
+		controls.assertControlAvailability("remove-chessman", false);
+
+		history.assertItems([]);
 	});
 
 	describe("flip board", () => {
@@ -89,7 +92,7 @@ describe("simple cases", () => {
 	});
 
 	describe("move chessman", () => {
-		function expectChessmanIsNotBeaten({
+		function expectChessmanIsNotCaptured({
 			sourceCoordinate,
 			sourceChessman,
 			destinationCoordinate,
@@ -107,16 +110,24 @@ describe("simple cases", () => {
 
 		it("commom success case", () => {
 			app.moveChessman("white-pawn", "e2", "e4");
+
+			history.assertItems([
+				{
+					num: 1,
+					isCurrent: true,
+					value: "moving:white-pawn:e2-e4",
+				},
+			]);
 		});
 
-		it("can't beat a own chessman", () => {
+		it("can't capture a own chessman", () => {
 			const sourceCoordinate = "b1";
 			const destinationCoordinate = "d2";
 
 			board.selectCell("b1");
 			board.selectCell("d2");
 
-			expectChessmanIsNotBeaten({
+			expectChessmanIsNotCaptured({
 				sourceCoordinate,
 				destinationCoordinate,
 				sourceChessman: "white-knight",
@@ -126,7 +137,7 @@ describe("simple cases", () => {
 			board.assertFocusedCell(null);
 		});
 
-		it("can't beat a King", () => {
+		it("can't capture a King", () => {
 			app.moveChessman("white-pawn", "c2", "c4");
 			app.moveChessman("black-pawn", "d7", "d5");
 			app.moveChessman("white-queen", "d1", "a4");
@@ -138,7 +149,7 @@ describe("simple cases", () => {
 			board.selectCell(sourceCoordinate);
 			board.selectCell(destinationCoordinate);
 
-			expectChessmanIsNotBeaten({
+			expectChessmanIsNotCaptured({
 				sourceCoordinate,
 				destinationCoordinate,
 				sourceChessman: "white-queen",
@@ -159,23 +170,31 @@ describe("simple cases", () => {
 
 		it("commom success case", () => {
 			app.addChessman("white-queen", "e5");
+
+			history.assertItems([
+				{
+					num: 1,
+					isCurrent: true,
+					value: "adding:white-queen:e5",
+				},
+			]);
 		});
 
 		it("add chessman action is disabled if cell isn't selected", () => {
 			app.moveChessman("white-pawn", "a2", "a4");
 
-			gameControls.assertControlAvailability("add-chessman", false);
+			controls.assertControlAvailability("add-chessman", false);
 		});
 
 		it("add chessman action is disabled if cell isn't empty", () => {
 			board.selectCell("h2");
 
-			gameControls.assertControlAvailability("add-chessman", false);
+			controls.assertControlAvailability("add-chessman", false);
 		});
 
 		it("can add all chessmen except Kings & Pawns", () => {
 			board.selectCell("e4");
-			gameControls.performAction("add-chessman");
+			controls.performAction("add-chessman");
 
 			expectCorrectAvailableChessmen(["white-pawn", "black-pawn", "white-king", "black-king"]);
 		});
@@ -184,7 +203,7 @@ describe("simple cases", () => {
 			app.removeChessman("white-pawn", "e2");
 
 			board.selectCell("e5");
-			gameControls.performAction("add-chessman");
+			controls.performAction("add-chessman");
 
 			expectCorrectAvailableChessmen(["black-pawn", "white-king", "black-king"]);
 		});
@@ -192,7 +211,7 @@ describe("simple cases", () => {
 		it("dialog closing on click to other area", () => {
 			board.selectCell("a3");
 
-			gameControls.performAction("add-chessman");
+			controls.performAction("add-chessman");
 			addChessmanDialog.assertVisibility();
 
 			cy.get("body").click();
@@ -204,23 +223,31 @@ describe("simple cases", () => {
 	describe("remove chessman", () => {
 		it("commom success case", () => {
 			app.removeChessman("white-pawn", "a2");
+
+			history.assertItems([
+				{
+					num: 1,
+					isCurrent: true,
+					value: "removing:white-pawn:a2",
+				},
+			]);
 		});
 
 		it("can't remove a King", () => {
 			board.selectCell("e8");
-			gameControls.assertControlAvailability("remove-chessman", false);
+			controls.assertControlAvailability("remove-chessman", false);
 		});
 
 		it("remove action is disabled if cell isn't selected", () => {
 			app.moveChessman("white-pawn", "e2", "e4");
 
-			gameControls.assertControlAvailability("remove-chessman", false);
+			controls.assertControlAvailability("remove-chessman", false);
 		});
 
 		it("remove action is disabled if empty cell selected", () => {
 			board.selectCell("h6");
 
-			gameControls.assertControlAvailability("remove-chessman", false);
+			controls.assertControlAvailability("remove-chessman", false);
 		});
 	});
 
@@ -228,40 +255,40 @@ describe("simple cases", () => {
 		app.moveChessman("white-pawn", "e2", "e4");
 		app.newGameOnRegularMode();
 
-		gameControls.assertControlAvailability("go-back", false);
-		gameControls.assertControlAvailability("go-forward", false);
+		controls.assertControlAvailability("go-back", false);
+		controls.assertControlAvailability("go-forward", false);
 	});
 
 	it("new game on empty board mode", () => {
 		app.moveChessman("white-pawn", "e2", "e4");
 		app.newGameOnEmptyBoardMode();
 
-		gameControls.assertControlAvailability("go-back", false);
-		gameControls.assertControlAvailability("go-forward", false);
+		controls.assertControlAvailability("go-back", false);
+		controls.assertControlAvailability("go-forward", false);
 	});
 
-	describe("go back/go forward", () => {
+	describe("history", () => {
 		it("can go back after first move", () => {
 			app.moveChessman("white-pawn", "e2", "e4");
 
-			gameControls.assertControlAvailability("go-back");
-			gameControls.performAction("go-back");
+			controls.assertControlAvailability("go-back");
+			controls.performAction("go-back");
 
 			app.assertChessmenArrangement(initialChessmenArrangement);
-			gameControls.assertControlAvailability("go-back", false);
+			controls.assertControlAvailability("go-back", false);
 		});
 
 		it("can go forward after going back", () => {
 			app.newGameOnEmptyBoardMode();
 			app.addChessman("white-king", "e1");
 
-			gameControls.performAction("go-back");
+			controls.performAction("go-back");
 
-			gameControls.assertControlAvailability("go-forward");
-			gameControls.performAction("go-forward");
-			gameControls.assertControlAvailability("go-forward", false);
+			controls.assertControlAvailability("go-forward");
+			controls.performAction("go-forward");
+			controls.assertControlAvailability("go-forward", false);
 
-			gameControls.performAction("go-back");
+			controls.performAction("go-back");
 			app.assertChessmenArrangement([]);
 		});
 
@@ -270,12 +297,54 @@ describe("simple cases", () => {
 			app.moveChessman("black-pawn", "e7", "e5");
 			app.moveChessman("white-knight", "g1", "f3");
 
-			gameControls.performAction("go-back");
-			gameControls.performAction("go-back");
-			gameControls.performAction("go-back");
+			history.selectByNumber(1);
+			controls.performAction("go-back");
 
 			app.moveChessman("white-pawn", "e2", "e3");
-			gameControls.assertControlAvailability("go-forward", false);
+			controls.assertControlAvailability("go-forward", false);
+		});
+
+		it("last history item is current by default", () => {
+			app.moveChessman("white-pawn", "e2", "e4");
+			app.moveChessman("black-pawn", "e7", "e5");
+			app.moveChessman("white-knight", "g1", "f3");
+
+			history.assertCurrentItemNumber(3);
+		});
+
+		it("hasn't current item when is going to initial state", () => {
+			app.moveChessman("white-pawn", "e2", "e4");
+			app.moveChessman("black-pawn", "e7", "e5");
+			app.moveChessman("white-knight", "g1", "f3");
+
+			history.selectByNumber(1);
+			controls.performAction("go-back");
+
+			app.assertChessmenArrangement(initialChessmenArrangement);
+
+			history.assertCurrentItemNumber(undefined);
+		});
+
+		it("items are in correct state if history rewritten", () => {
+			app.moveChessman("white-pawn", "e2", "e4");
+			app.moveChessman("black-pawn", "d7", "d5");
+			app.moveChessman("white-pawn", "e4", "d5");
+
+			history.selectByNumber(1);
+			app.moveChessman("black-pawn", "e7", "e5");
+
+			history.assertItems([
+				{
+					num: 2,
+					isCurrent: true,
+					value: "moving:black-pawn:e7-e5",
+				},
+				{
+					num: 1,
+					isCurrent: false,
+					value: "moving:white-pawn:e2-e4",
+				},
+			]);
 		});
 	});
 });

@@ -1,7 +1,7 @@
 import type { Chessman } from "../app-values";
 import type { Chessmen as ChessmenComponent } from "./chessmen";
 
-import { createAttributeName, createSelector } from "../utils";
+import { createAttributeName, createSelector } from "../utils/attributes-and-selectors";
 
 export class AddChessmanDialog {
 	readonly #selector = createSelector(createAttributeName("add-chessman-dialog"));

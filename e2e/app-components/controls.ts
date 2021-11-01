@@ -1,10 +1,10 @@
 import type { GameControlName } from "../app-values";
 
-import { createAttributeName, createSelector, joinSelectors } from "../utils";
+import { createAttributeName, createSelector, joinSelectors } from "../utils/attributes-and-selectors";
 
-export class GameControls {
-	readonly #selector = createSelector(createAttributeName("game-controls"));
-	readonly #controlAttributeName = createAttributeName("game-control");
+export class Controls {
+	readonly #selector = createSelector(createAttributeName("controls"));
+	readonly #controlAttributeName = createAttributeName("control");
 
 	assertControlAvailability(controlName: GameControlName, isEnabled = true): void {
 		this.#getControl(controlName).should(isEnabled ? "be.enabled" : "be.disabled");

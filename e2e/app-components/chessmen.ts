@@ -1,6 +1,6 @@
 import type { Chessman } from "../app-values";
 
-import { createAttributeName, createSelector, joinSelectors } from "../utils";
+import { createAttributeName, createSelector, joinSelectors } from "../utils/attributes-and-selectors";
 
 export class Chessmen {
 	readonly #attributeName = createAttributeName("chessman");

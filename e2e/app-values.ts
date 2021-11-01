@@ -4,10 +4,10 @@ type BoardFile = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
 export type BoardCoordinate = `${BoardFile}${BoardRank}`;
 export type ChessmenArrangement = ReadonlyArray<[BoardCoordinate, Chessman]>;
 
-type ChessmanColor = "white" | "black";
+type Color = "white" | "black";
 type ChessmanType = "pawn" | "rook" | "knight" | "bishop" | "queen" | "king";
 
-export type Chessman = `${ChessmanColor}-${ChessmanType}`;
+export type Chessman = `${Color}-${ChessmanType}`;
 
 export type GameControlName =
 	| "empty-board"
@@ -118,3 +118,14 @@ const {
 })();
 
 export { boardCoordinates, initialChessmenArrangement };
+
+export type HistoryItemValue =
+	| `adding:${Chessman}:${BoardCoordinate}`
+	| `removing:${Chessman}:${BoardCoordinate}`
+	| `moving:${Chessman}:${BoardCoordinate}${"-" | "x"}${BoardCoordinate}`;
+
+export interface HistoryItem {
+	num: number;
+	isCurrent: boolean;
+	value: HistoryItemValue;
+}

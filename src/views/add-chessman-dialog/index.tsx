@@ -16,12 +16,10 @@ function Option({ chessman, onSelect }: { chessman: IChessman; onSelect: (chessm
 		onSelect(chessman);
 	}
 
-	const chessmanValue = `${chessman.color}-${chessman.type}`;
-
 	return (
-		<div className={styles.option} onClick={handleClick} data-test-chessman-option={chessmanValue}>
+		<button type="button" className={styles.option} onClick={handleClick} data-test-chessman-option={chessman}>
 			<Chessman chessman={chessman} />
-		</div>
+		</button>
 	);
 }
 
@@ -60,10 +58,9 @@ export function AddChessmanDialog({
 		};
 	}, []);
 
-	const options = availableChessmen.map((chessman) => {
-		const key = `${chessman.color}-${chessman.type}`;
-		return <Option key={key} chessman={chessman} onSelect={handleSelect} />;
-	});
+	const options = availableChessmen.map((chessman) => (
+		<Option key={chessman} chessman={chessman} onSelect={handleSelect} />
+	));
 
 	return (
 		<dialog className={styles.dialog} ref={dialogRef} data-test-add-chessman-dialog="">
