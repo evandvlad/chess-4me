@@ -1,6 +1,6 @@
 import React from "react";
 
-import styles from "./game-controls.module.scss";
+import styles from "./controls.module.scss";
 
 interface Props {
 	title: string;

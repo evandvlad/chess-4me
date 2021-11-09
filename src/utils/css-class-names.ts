@@ -1,4 +1,4 @@
-export function cssClassNames(...args: Array<string | null | Record<string, boolean>>): string {
+export function cssClassNames(...args: Array<string | null | undefined | Record<string, boolean>>): string {
 	return args
 		.flatMap((val) => {
 			if (!val) {

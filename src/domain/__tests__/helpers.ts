@@ -6,70 +6,70 @@ const data: {
 	initialChessmenArrangement: ReadonlyArray<[BoardCoordinate, Chessman | null]>;
 } = (() => {
 	const initialChessmenArrangementRecord: Record<BoardCoordinate, Chessman | null> = {
-		a1: { color: "white", type: "rook" },
-		a2: { color: "white", type: "pawn" },
+		a1: "white-rook",
+		a2: "white-pawn",
 		a3: null,
 		a4: null,
 		a5: null,
 		a6: null,
-		a7: { color: "black", type: "pawn" },
-		a8: { color: "black", type: "rook" },
-		b1: { color: "white", type: "knight" },
-		b2: { color: "white", type: "pawn" },
+		a7: "black-pawn",
+		a8: "black-rook",
+		b1: "white-knight",
+		b2: "white-pawn",
 		b3: null,
 		b4: null,
 		b5: null,
 		b6: null,
-		b7: { color: "black", type: "pawn" },
-		b8: { color: "black", type: "knight" },
-		c1: { color: "white", type: "bishop" },
-		c2: { color: "white", type: "pawn" },
+		b7: "black-pawn",
+		b8: "black-knight",
+		c1: "white-bishop",
+		c2: "white-pawn",
 		c3: null,
 		c4: null,
 		c5: null,
 		c6: null,
-		c7: { color: "black", type: "pawn" },
-		c8: { color: "black", type: "bishop" },
-		d1: { color: "white", type: "queen" },
-		d2: { color: "white", type: "pawn" },
+		c7: "black-pawn",
+		c8: "black-bishop",
+		d1: "white-queen",
+		d2: "white-pawn",
 		d3: null,
 		d4: null,
 		d5: null,
 		d6: null,
-		d7: { color: "black", type: "pawn" },
-		d8: { color: "black", type: "queen" },
-		e1: { color: "white", type: "king" },
-		e2: { color: "white", type: "pawn" },
+		d7: "black-pawn",
+		d8: "black-queen",
+		e1: "white-king",
+		e2: "white-pawn",
 		e3: null,
 		e4: null,
 		e5: null,
 		e6: null,
-		e7: { color: "black", type: "pawn" },
-		e8: { color: "black", type: "king" },
-		f1: { color: "white", type: "bishop" },
-		f2: { color: "white", type: "pawn" },
+		e7: "black-pawn",
+		e8: "black-king",
+		f1: "white-bishop",
+		f2: "white-pawn",
 		f3: null,
 		f4: null,
 		f5: null,
 		f6: null,
-		f7: { color: "black", type: "pawn" },
-		f8: { color: "black", type: "bishop" },
-		g1: { color: "white", type: "knight" },
-		g2: { color: "white", type: "pawn" },
+		f7: "black-pawn",
+		f8: "black-bishop",
+		g1: "white-knight",
+		g2: "white-pawn",
 		g3: null,
 		g4: null,
 		g5: null,
 		g6: null,
-		g7: { color: "black", type: "pawn" },
-		g8: { color: "black", type: "knight" },
-		h1: { color: "white", type: "rook" },
-		h2: { color: "white", type: "pawn" },
+		g7: "black-pawn",
+		g8: "black-knight",
+		h1: "white-rook",
+		h2: "white-pawn",
 		h3: null,
 		h4: null,
 		h5: null,
 		h6: null,
-		h7: { color: "black", type: "pawn" },
-		h8: { color: "black", type: "rook" },
+		h7: "black-pawn",
+		h8: "black-rook",
 	};
 
 	return {
@@ -80,7 +80,7 @@ const data: {
 	};
 })();
 
-export function expectChessmenArrangement({
+export function expectRegularGameChessmenArrangement({
 	game,
 	changeMap = new Map(),
 	activeCoordinate = null,
@@ -97,27 +97,19 @@ export function expectChessmenArrangement({
 	});
 }
 
-export function expectStateOfNewGameOnRegularMode(game: Game): void {
-	expectChessmenArrangement({ game });
-	expect(game.history.canGoBack).to.equal(false);
-}
-
-export function expectStateOfNewGameOnEmptyBoardMode(game: Game): void {
-	const isEmptyBoard = data.boardCoordinates.every((coordinate) => !game.board.hasChessmanByCoordinate(coordinate));
-
-	expect(isEmptyBoard).to.equal(true);
-	expect(game.history.canGoBack).to.equal(false);
-}
-
-export function expectGameBoardStatesAreSame(game1: Game, game2: Game): void {
-	expect(game1.board.activeCoordinate).to.equal(game2.board.activeCoordinate);
-
-	const areAllChessmenInSamePositions = data.boardCoordinates.every((coordinate) => {
-		const chessman1 = game1.board.getChessmanByCoordinate(coordinate);
-		const chessman2 = game2.board.getChessmanByCoordinate(coordinate);
-
-		return chessman1?.color === chessman2?.color && chessman1?.type === chessman2?.type;
+export function expectChessmanArrangement({
+	game,
+	chessmenMap,
+	activeCoordinate = null,
+}: {
+	game: Game;
+	chessmenMap: ReadonlyMap<BoardCoordinate, Chessman | null>;
+	activeCoordinate?: BoardCoordinate | null;
+}) {
+	data.boardCoordinates.forEach((coordinate) => {
+		const chessman = chessmenMap.get(coordinate) ?? null;
+		expect(game.board.getChessmanByCoordinate(coordinate)).to.eql(chessman);
 	});
 
-	expect(areAllChessmenInSamePositions).to.equal(true);
+	expect(game.board.activeCoordinate).to.equal(activeCoordinate);
 }

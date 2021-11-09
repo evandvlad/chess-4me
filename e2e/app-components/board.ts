@@ -1,8 +1,14 @@
 import type { BoardDirection, BoardCoordinate, Chessman } from "../app-values";
-import type { PositionOnScreen, OptionalValueBox } from "../utils";
+import type { OptionalValueBox } from "../utils/optional-value-box";
+import type { PositionOnScreen } from "../utils/position-on-screen";
 import type { Chessmen } from "./chessmen";
 
-import { createAttributeName, createSelector, joinSelectors, extractAttributeValue } from "../utils";
+import {
+	createAttributeName,
+	createSelector,
+	joinSelectors,
+	extractAttributeValue,
+} from "../utils/attributes-and-selectors";
 
 export class Board {
 	readonly #attributeName = createAttributeName("board");

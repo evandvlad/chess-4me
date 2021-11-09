@@ -1,17 +1,20 @@
 import { GameManagement } from "./game-management";
-import { MainBoard } from "./main-board";
-import { GameControls } from "./game-controls";
+import { Board } from "./board";
+import { Controls } from "./controls";
+import { History } from "./history";
 
 export class App {
-	readonly mainBoard: MainBoard;
-	readonly gameControls: GameControls;
+	readonly board: Board;
+	readonly controls: Controls;
+	readonly history: History;
 
 	constructor() {
 		const gameManagement = new GameManagement();
 
-		this.mainBoard = new MainBoard(gameManagement);
-		this.gameControls = new GameControls({ gameManagement, mainBoard: this.mainBoard });
+		this.board = new Board(gameManagement);
+		this.controls = new Controls(gameManagement, this.board);
+		this.history = new History(gameManagement);
 	}
 }
 
-export type { MainBoard, GameControls };
+export type { Board, Controls, History };

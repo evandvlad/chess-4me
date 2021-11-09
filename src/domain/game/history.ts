@@ -1,89 +1,85 @@
-import { makeObservable, observable, computed, action } from "mobx";
+import { makeObservable, computed, observable, action } from "mobx";
 
-import type { BoardCoordinate } from "../chess-setup";
-import type { ChessmenMap } from "./chessmen";
+import type { HistoryClientAPI, HistoryRecord, BoardState } from "./values";
 
-import { assertTrue } from "~/utils/assert";
+import { assert } from "~/utils/assert";
 import { EventsHub } from "~/utils/events-hub";
 
-export interface HistoryRecord {
-	readonly chessmenMap: ChessmenMap;
-	readonly activeCoordinate: BoardCoordinate | null;
-}
-
-interface HistoryLinkedNode {
-	readonly record: HistoryRecord;
-	readonly prevNode: HistoryLinkedNode | null;
-	nextNode: HistoryLinkedNode | null;
-}
-
-export interface HistoryClientAPI {
-	readonly canGoBack: boolean;
-	readonly canGoForward: boolean;
-	goBack: () => void;
-	goForward: () => void;
-}
-
-interface Parameters {
-	initialRecord: HistoryRecord;
-	onChanged: () => void;
-}
+const initialStateCursorPosition = -1;
 
 export class History implements HistoryClientAPI {
-	@observable.ref private historyLinkedNode: HistoryLinkedNode;
+	@observable.shallow private readonly records: HistoryRecord[] = [];
 
-	readonly #eventsHub: EventsHub<{ changed: [] }>;
+	@observable private cursorPosition = initialStateCursorPosition;
 
-	constructor({ initialRecord, onChanged }: Parameters) {
+	readonly #eventsHub = new EventsHub<{ changed: [] }>();
+	readonly #initialBoardState: BoardState;
+
+	constructor({ boardState, onChanged }: { boardState: BoardState; onChanged: () => void }) {
 		makeObservable(this);
 
-		this.#eventsHub = new EventsHub();
+		this.#initialBoardState = boardState;
 		this.#eventsHub.on("changed", onChanged);
-
-		this.historyLinkedNode = this.#createLinkedNode(initialRecord, null);
 	}
 
 	@computed
-	get currentRecord(): HistoryRecord {
-		return this.historyLinkedNode.record;
+	get items() {
+		return this.records.map(({ item }) => item);
+	}
+
+	@computed
+	get currentBoardState(): BoardState {
+		return this.cursorPosition > initialStateCursorPosition
+			? this.records[this.cursorPosition]!.boardState
+			: this.#initialBoardState;
 	}
 
 	@computed
 	get canGoBack(): boolean {
-		return this.historyLinkedNode.prevNode !== null;
+		return this.cursorPosition > initialStateCursorPosition;
 	}
 
 	@computed
 	get canGoForward(): boolean {
-		return this.historyLinkedNode.nextNode !== null;
+		return this.cursorPosition < this.#lastRecordsIndex;
 	}
 
 	@action
 	goBack(): void {
-		assertTrue(this.canGoBack, "Incorrect invariant for go back");
-		this.historyLinkedNode = this.historyLinkedNode.prevNode!;
+		assert(this.canGoBack, "Incorrect invariant for go back");
+		this.cursorPosition -= 1;
 		this.#eventsHub.trigger("changed");
 	}
 
 	@action
 	goForward(): void {
-		assertTrue(this.canGoForward, "Incorrect invariant for go forward");
-		this.historyLinkedNode = this.historyLinkedNode.nextNode!;
+		assert(this.canGoForward, "Incorrect invariant for go forward");
+		this.cursorPosition += 1;
 		this.#eventsHub.trigger("changed");
 	}
 
 	@action
-	addRecord(record: HistoryRecord): void {
-		this.historyLinkedNode = this.#createLinkedNode(record, this.historyLinkedNode);
+	goByHistoryIndex(index: number) {
+		assert(typeof this.records[index] !== "undefined", "Incorrect invariant for go by history index");
+		this.cursorPosition = index;
+		this.#eventsHub.trigger("changed");
 	}
 
-	#createLinkedNode(record: HistoryRecord, prevNode: HistoryLinkedNode | null): HistoryLinkedNode {
-		const newNode = { prevNode, record, nextNode: null };
+	isCurrentHistoryIndex(index: number) {
+		return index !== initialStateCursorPosition && this.cursorPosition === index;
+	}
 
-		if (prevNode) {
-			prevNode.nextNode = newNode;
+	@action
+	pushRecord(record: HistoryRecord): void {
+		if (this.cursorPosition > initialStateCursorPosition) {
+			this.records.splice(this.cursorPosition + 1);
 		}
 
-		return newNode;
+		this.records.push(record);
+		this.cursorPosition = this.#lastRecordsIndex;
+	}
+
+	get #lastRecordsIndex() {
+		return this.records.length - 1;
 	}
 }

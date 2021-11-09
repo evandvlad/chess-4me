@@ -141,4 +141,46 @@ describe("complex cases", () => {
 		app.moveChessman("white-pawn", "d2", "d3");
 		app.moveChessman("black-pawn", "h7", "h6");
 	});
+
+	it("different actions & history items", () => {
+		app.moveChessman("white-pawn", "e2", "e4");
+		app.moveChessman("black-pawn", "e7", "e5");
+		app.moveChessman("white-knight", "g1", "f3");
+
+		app.goByHistoryNumber(1);
+
+		app.moveChessman("black-pawn", "d7", "d5");
+		app.moveChessman("white-pawn", "d2", "d4");
+		app.moveChessman("black-pawn", "d5", "e4");
+
+		app.goByHistoryNumber(2);
+
+		app.moveChessman("white-pawn", "e4", "d5");
+		app.moveChessman("black-queen", "d8", "d5");
+		app.moveChessman("white-pawn", "d2", "d4");
+
+		app.goByHistoryNumber(4);
+
+		app.removeChessman("white-pawn", "d2");
+		app.addChessman("white-pawn", "d4");
+
+		app.goByHistoryNumber(1);
+		app.goBack();
+
+		app.assertChessmenArrangement(initialChessmenArrangement);
+
+		app.goByHistoryNumber(6);
+
+		app.assertHistory(
+			[
+				"adding:white-pawn:d4",
+				"removing:white-pawn:d2",
+				"moving:black-queen:d8xd5",
+				"moving:white-pawn:e4xd5",
+				"moving:black-pawn:d7-d5",
+				"moving:white-pawn:e2-e4",
+			],
+			6,
+		);
+	});
 });

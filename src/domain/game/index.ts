@@ -1,21 +1,21 @@
 import { action, makeObservable, observable, computed } from "mobx";
 
 import type { BoardCoordinate, Chessman } from "../chess-setup";
-import type { BoardClientAPI } from "./board";
-import type { HistoryClientAPI } from "./history";
-import type { ChessmenMap } from "./chessmen";
+import type { BoardClientAPI, HistoryClientAPI, ChessmenMap } from "./values";
 
-import { chessmenRegistry, areChessmenEquals, initialChessmenMap } from "./chessmen";
-import { assertTrue } from "~/utils/assert";
+import { getChessmanInfo, chessmenArrangement } from "../chess-setup";
+import { assert } from "~/utils/assert";
 import { Board } from "./board";
 import { History } from "./history";
+
+export type { HistoryItem } from "./values";
 
 export class Game {
 	@observable.ref private _board: Board;
 	#history: History;
 
 	static createOnRegularMode() {
-		return new this(initialChessmenMap);
+		return new this(new Map(chessmenArrangement));
 	}
 
 	static createOnEmptyBoardMode() {
@@ -28,10 +28,7 @@ export class Game {
 		this._board = Board.createNew(chessmenMap);
 
 		this.#history = new History({
-			initialRecord: {
-				activeCoordinate: this._board.activeCoordinate,
-				chessmenMap: this._board.chessmenMap,
-			},
+			boardState: this._board.state,
 			onChanged: this.#handleHistoryChanged,
 		});
 	}
@@ -46,21 +43,25 @@ export class Game {
 	}
 
 	get availableChessmenForAdding(): ReadonlyArray<Chessman> {
-		return [
-			chessmenRegistry.get("white", "queen"),
-			chessmenRegistry.get("black", "queen"),
-			chessmenRegistry.get("white", "rook"),
-			chessmenRegistry.get("black", "rook"),
-			chessmenRegistry.get("white", "knight"),
-			chessmenRegistry.get("black", "knight"),
-			chessmenRegistry.get("white", "bishop"),
-			chessmenRegistry.get("black", "bishop"),
-			chessmenRegistry.get("white", "pawn"),
-			chessmenRegistry.get("black", "pawn"),
-			chessmenRegistry.get("white", "king"),
-			chessmenRegistry.get("black", "king"),
-		].filter((chessman) => {
-			switch (chessman.type) {
+		return (
+			[
+				"white-queen",
+				"black-queen",
+				"white-rook",
+				"black-rook",
+				"white-knight",
+				"black-knight",
+				"white-bishop",
+				"black-bishop",
+				"white-pawn",
+				"black-pawn",
+				"white-king",
+				"black-king",
+			] as const
+		).filter((chessman) => {
+			const { type } = getChessmanInfo(chessman);
+
+			switch (type) {
 				case "pawn":
 					return this._board.getChessmanCount(chessman) < 8;
 
@@ -86,11 +87,14 @@ export class Game {
 			return true;
 		}
 
-		if (sourceChessman.color === destinationChessman.color) {
+		const sourceChessmanInfo = getChessmanInfo(sourceChessman);
+		const destinationChessmanInfo = getChessmanInfo(destinationChessman);
+
+		if (sourceChessmanInfo.color === destinationChessmanInfo.color) {
 			return false;
 		}
 
-		if (destinationChessman.type === "king") {
+		if (destinationChessmanInfo.type === "king") {
 			return false;
 		}
 
@@ -104,7 +108,9 @@ export class Game {
 			return false;
 		}
 
-		if (chessman.type === "king") {
+		const { type } = getChessmanInfo(chessman);
+
+		if (type === "king") {
 			return false;
 		}
 
@@ -113,23 +119,56 @@ export class Game {
 
 	@action
 	addChessman(coordinate: BoardCoordinate, chessman: Chessman): void {
-		assertTrue(this.#canAddChessman(coordinate, chessman), "Incorrect invariant for adding");
+		assert(this.#canAddChessman(coordinate, chessman), "Incorrect invariant for adding");
+
 		this._board = this._board.addChessman(coordinate, chessman);
-		this.#addHistoryRecord();
+
+		this.#history.pushRecord({
+			item: {
+				action: "adding",
+				chessman,
+				coordinate,
+			},
+			boardState: this._board.state,
+		});
 	}
 
 	@action
 	moveChessman(sourceCoordinate: BoardCoordinate, destinationCoordinate: BoardCoordinate): void {
-		assertTrue(this.canMoveChessman(sourceCoordinate, destinationCoordinate), "Incorrect invariant for moving");
-		this._board = this._board.moveChessman(sourceCoordinate, destinationCoordinate);
-		this.#addHistoryRecord();
+		assert(this.canMoveChessman(sourceCoordinate, destinationCoordinate), "Incorrect invariant for moving");
+
+		const chessman = this._board.getChessmanByCoordinate(sourceCoordinate)!;
+		const isCapture = this._board.hasChessmanByCoordinate(destinationCoordinate);
+
+		this._board = this._board.removeChessman(sourceCoordinate).addChessman(destinationCoordinate, chessman);
+
+		this.#history.pushRecord({
+			item: {
+				action: "moving",
+				chessman,
+				sourceCoordinate,
+				destinationCoordinate,
+				isCapture,
+			},
+			boardState: this._board.state,
+		});
 	}
 
 	@action
 	removeChessman(coordinate: BoardCoordinate): void {
-		assertTrue(this.canRemoveChessman(coordinate), "Incorrect invariant for removing");
+		assert(this.canRemoveChessman(coordinate), "Incorrect invariant for removing");
+
+		const chessman = this._board.getChessmanByCoordinate(coordinate)!;
 		this._board = this._board.removeChessman(coordinate);
-		this.#addHistoryRecord();
+
+		this.#history.pushRecord({
+			item: {
+				action: "removing",
+				chessman,
+				coordinate,
+			},
+			boardState: this._board.state,
+		});
 	}
 
 	#canAddChessman(coordinate: BoardCoordinate, chessman: Chessman): boolean {
@@ -137,20 +176,11 @@ export class Game {
 			return false;
 		}
 
-		return this.availableChessmenForAdding.some((availableChessman) =>
-			areChessmenEquals(availableChessman, chessman),
-		);
-	}
-
-	#addHistoryRecord(): void {
-		this.#history.addRecord({
-			activeCoordinate: this._board.activeCoordinate,
-			chessmenMap: this._board.chessmenMap,
-		});
+		return this.availableChessmenForAdding.some((availableChessman) => availableChessman === chessman);
 	}
 
 	#handleHistoryChanged = (): void => {
-		const { currentRecord } = this.#history;
-		this._board = Board.createFromHistoryRecord(currentRecord);
+		const { currentBoardState } = this.#history;
+		this._board = Board.createFromState(currentBoardState);
 	};
 }

@@ -1,0 +1,31 @@
+@use "./colors";
+
+.site {
+	$controls-area-height: 40px;
+	$board-area: calc(100vh - $controls-area-height);
+
+	display: grid;
+	grid-template-areas:
+		"board history"
+		"controls history";
+	grid-template-rows: $board-area $controls-area-height;
+	grid-template-columns: $board-area auto;
+}
+
+.board {
+	grid-area: board;
+	margin: 20px;
+}
+
+.controls {
+	grid-area: controls;
+	position: relative;
+	margin-bottom: 20px;
+}
+
+.history {
+	grid-area: history;
+	margin: 20px 20px 20px 0;
+	border-left: 1px solid colors.$brown-dark;
+	padding-left: 15px;
+}

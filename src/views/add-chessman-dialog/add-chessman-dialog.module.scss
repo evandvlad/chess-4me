@@ -1,15 +1,14 @@
 @use "../colors";
-@use "../vh-measurements" as vhm;
 
 .dialog {
 	display: flex;
-	width: vhm.$main-board-area;
+	width: 100%;
 	top: unset;
-	bottom: 0;
-	left: vhm.$layout-indent;
-	box-shadow: 0 0 1px 1px colors.$gray;
+	bottom: -20px;
+	left: 0;
+	box-shadow: 0 0 1px 1px colors.$gray-light;
 	border-radius: 3px;
-	padding: vhm.$layout-indent;
+	padding: 20px;
 	overflow-x: auto;
 	opacity: 90%;
 	z-index: 1;
