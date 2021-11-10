@@ -6,47 +6,38 @@ import { Chessman } from "../chessman";
 
 import styles from "./history.module.scss";
 
-interface Props {
-	num: number;
-	item: HistoryItem;
-}
+function renderContent({ item, prefix, suffix }: { item: HistoryItem; prefix?: string; suffix: string }) {
+	const { action, chessman } = item;
 
-function renderContent({ item, prefix, suffix }: { item: HistoryItem; prefix: string; suffix: string }) {
 	return (
-		<span className={styles.content} data-test-history-item-content={`${item.action}:${item.chessman}:${suffix}`}>
+		<span className={styles.content} data-test-history-item-content={`${action}:${chessman}:${suffix}`}>
 			{prefix}
-			<Chessman className={styles.chessman} chessman={item.chessman} />
+			<Chessman className={styles.chessman} chessman={chessman} />
 			{suffix}
 		</span>
 	);
 }
 
-export function Content({ num, item }: Props) {
-	const numPrefix = `${num}. `;
-
-	switch (item.action) {
+export function Content(props: HistoryItem) {
+	switch (props.action) {
 		case "adding":
 			return renderContent({
-				item,
-				prefix: `${numPrefix}[+]`,
-				suffix: item.coordinate,
+				item: props,
+				prefix: "[+]",
+				suffix: props.coordinate,
 			});
 
 		case "removing":
 			return renderContent({
-				item,
-				prefix: `${numPrefix}[-]`,
-				suffix: item.coordinate,
+				item: props,
+				prefix: "[-]",
+				suffix: props.coordinate,
 			});
 
 		case "moving":
 			return renderContent({
-				item,
-				prefix: numPrefix,
-				suffix: `${item.sourceCoordinate}${item.isCapture ? "x" : "-"}${item.destinationCoordinate}`,
+				item: props,
+				suffix: `${props.sourceCoordinate}${props.isCapture ? "x" : "-"}${props.destinationCoordinate}`,
 			});
-
-		default:
-			throw new Error("Unknown item action type");
 	}
 }

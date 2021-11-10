@@ -13,7 +13,7 @@ export class Chessmen {
 		});
 	}
 
-	select(parentSelector: string, chessman: Chessman): void {
+	select(parentSelector: string, chessman: Chessman) {
 		const selector = joinSelectors(parentSelector, createSelector(this.#attributeName, chessman));
 		cy.get(selector).click();
 	}

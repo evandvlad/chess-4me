@@ -1,7 +1,16 @@
 import type { BoardCoordinate, Chessman } from "..";
 
 import { Game, boardCoordinates } from "..";
-import { expectRegularGameChessmenArrangement, expectChessmanArrangement } from "./helpers";
+import {
+	initialChessmenArrangement,
+	ChessmenMapTuner,
+	HistoryItemsTuner,
+	expectCorrectBoardState,
+	expectCorrectHistoryState,
+	expectCorrectChessmenDiffState,
+	expectCorrectNewGameState,
+	expectCorrectGameStateAfterSingleAction,
+} from "./helpers";
 
 describe("domain", () => {
 	it("all board coordinates are unique", () => {
@@ -12,117 +21,113 @@ describe("domain", () => {
 	it("new game on regular mode has correct state", () => {
 		const game = Game.createOnRegularMode();
 
-		expectRegularGameChessmenArrangement({ game });
-		expect(game.history.canGoBack).to.equal(false);
+		expectCorrectNewGameState(game, "regular");
 	});
 
 	it("new game on empty board mode has correct state", () => {
 		const game = Game.createOnEmptyBoardMode();
 
-		expectChessmanArrangement({ game, chessmenMap: new Map() });
-		expect(game.history.canGoBack).to.equal(false);
+		expectCorrectNewGameState(game, "empty board");
 	});
 
 	describe("available chessmen for adding", () => {
+		function expectChessmanAvailabilityForAdding(game: Game, chessman: Chessman, isExpectedAsAvailable: boolean) {
+			const availableChessmen = game.availableChessmenForAdding;
+			const isAvailableForAdding = availableChessmen.some((availableChessman) => availableChessman === chessman);
+
+			expect(isAvailableForAdding).to.equal(isExpectedAsAvailable);
+		}
+
 		it("both Kings aren't available for adding if they are on board", () => {
 			const game = Game.createOnRegularMode();
-			const kings = ["white-king", "black-king"];
-			const chessmen = game.availableChessmenForAdding.filter((chessman) => kings.includes(chessman));
 
-			expect(chessmen.length).to.equal(0);
+			expectChessmanAvailabilityForAdding(game, "white-king", false);
+			expectChessmanAvailabilityForAdding(game, "black-king", false);
 		});
 
 		it("King is available for adding if it isn't on board", () => {
 			const game = Game.createOnEmptyBoardMode();
-			game.addChessman("a1", "white-king");
 
-			const blackKingIsAvailable = game.availableChessmenForAdding.some((chessman) => chessman === "black-king");
+			game.addChessman("white-king", "a1");
 
-			expect(blackKingIsAvailable).to.equal(true);
+			expectChessmanAvailabilityForAdding(game, "black-king", true);
 		});
 
 		it("Pawns aren't available if all exists on board", () => {
 			const game = Game.createOnRegularMode();
-			const pawns = ["white-pawn", "black-pawn"];
-			const chessmen = game.availableChessmenForAdding.filter((chessman) => pawns.includes(chessman));
 
-			expect(chessmen.length).to.equal(0);
+			expectChessmanAvailabilityForAdding(game, "white-pawn", false);
+			expectChessmanAvailabilityForAdding(game, "black-pawn", false);
 		});
 
 		it("Pawn is available if their less than 8", () => {
 			const game = Game.createOnRegularMode();
 
-			game.removeChessman("e2");
-			const pawns = game.availableChessmenForAdding.filter((chessman) => chessman === "white-pawn");
+			game.removeChessman("white-pawn", "e2");
 
-			expect(pawns.length).to.equal(1);
+			expectChessmanAvailabilityForAdding(game, "white-pawn", true);
 		});
 
-		[
-			"white-rook",
-			"white-knight",
-			"white-bishop",
-			"white-queen",
-			"black-rook",
-			"black-knight",
-			"black-bishop",
-			"black-queen",
-		].forEach((chessman) => {
+		(
+			[
+				"white-rook",
+				"white-knight",
+				"white-bishop",
+				"white-queen",
+				"black-rook",
+				"black-knight",
+				"black-bishop",
+				"black-queen",
+			] as Chessman[]
+		).forEach((chessman) => {
 			it(`chessman '${chessman}' is available for adding on new game (regular mode)`, () => {
-				const game = Game.createOnRegularMode();
-				const availableChessmen = game.availableChessmenForAdding;
-				const isAvailableForAdding = availableChessmen.some(
-					(availableChessman) => availableChessman === chessman,
-				);
-
-				expect(isAvailableForAdding).to.equal(true);
+				expectChessmanAvailabilityForAdding(Game.createOnRegularMode(), chessman, true);
 			});
 		});
 
-		[
-			"white-rook",
-			"white-knight",
-			"white-bishop",
-			"white-queen",
-			"white-pawn",
-			"white-king",
-			"black-rook",
-			"black-knight",
-			"black-bishop",
-			"black-queen",
-			"black-pawn",
-			"black-king",
-		].forEach((chessman) => {
+		(
+			[
+				"white-rook",
+				"white-knight",
+				"white-bishop",
+				"white-queen",
+				"white-pawn",
+				"white-king",
+				"black-rook",
+				"black-knight",
+				"black-bishop",
+				"black-queen",
+				"black-pawn",
+				"black-king",
+			] as Chessman[]
+		).forEach((chessman) => {
 			it(`chessman '${chessman}' is available for adding on new game (empty board mode)`, () => {
-				const game = Game.createOnEmptyBoardMode();
-				const availableChessmen = game.availableChessmenForAdding;
-				const isAvailableForAdding = availableChessmen.some(
-					(availableChessman) => availableChessman === chessman,
-				);
-
-				expect(isAvailableForAdding).to.equal(true);
+				expectChessmanAvailabilityForAdding(Game.createOnEmptyBoardMode(), chessman, true);
 			});
 		});
 	});
 
-	describe("add chessman", () => {
-		function expectIncorrectAdding(game: Game, coordinate: BoardCoordinate, chessman: Chessman) {
-			expect(() => {
-				game.addChessman(coordinate, chessman);
-			}).to.throw("Incorrect invariant for adding");
-		}
-
-		function expectCorrectAdding(game: Game, coordinate: BoardCoordinate, chessman: Chessman) {
-			expect(game.board.getChessmanByCoordinate(coordinate)).to.eql(chessman);
-			expect(game.board.activeCoordinate).to.equal(coordinate);
-		}
+	describe("adding chessman", () => {
+		const invariantErrorMessage = "Incorrect invariant for adding";
 
 		it("exception if cell is not empty", () => {
-			expectIncorrectAdding(Game.createOnRegularMode(), "e2", "white-rook");
+			const game = Game.createOnRegularMode();
+
+			expect(() => {
+				game.addChessman("white-rook", "e2");
+			}).to.throw(invariantErrorMessage);
+
+			expectCorrectNewGameState(game, "regular");
 		});
 
 		it("exception if chessman is not available for adding", () => {
-			expectIncorrectAdding(Game.createOnRegularMode(), "e4", "white-king");
+			const game = Game.createOnRegularMode();
+
+			expect(() => {
+				game.addChessman("white-king", "e4");
+			}).to.throw(invariantErrorMessage);
+
+			expectCorrectNewGameState(game, "regular");
 		});
 
 		it("adding chessman successfully", () => {
@@ -130,115 +135,145 @@ describe("domain", () => {
 			const chessman = game.availableChessmenForAdding[0]!;
 			const coordinate = "d3";
 
-			game.addChessman(coordinate, chessman);
+			game.addChessman(chessman, coordinate);
 
-			expectCorrectAdding(game, coordinate, chessman);
-			expectRegularGameChessmenArrangement({
-				game,
+			expectCorrectGameStateAfterSingleAction(game, {
 				activeCoordinate: coordinate,
-				changeMap: new Map([[coordinate, chessman]]),
+				chessmanMap: new ChessmenMapTuner(initialChessmenArrangement).set(coordinate, chessman).getMap(),
+				historyItem: new HistoryItemsTuner().pushAddingAction(chessman, coordinate).getSingleItem(),
 			});
 		});
 	});
 
-	describe("can move/move chessman", () => {
-		function expectIncorrectMoving(
-			game: Game,
-			sourceCoordinate: BoardCoordinate,
-			destinationCoordinate: BoardCoordinate,
-		) {
-			expect(game.canMoveChessman(sourceCoordinate, destinationCoordinate)).to.equal(false);
+	describe("moving chessman", () => {
+		const invariantErrorMessage = "Incorrect invariant for moving";
+
+		it("can't move if chessman isn't exists on source coordinate", () => {
+			const game = Game.createOnRegularMode();
+			const chessman = "white-pawn";
+			const sourceCoordinate = "e4";
+			const destinationCoordinate = "e5";
+
+			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
+
+			expect(canMove).to.equal(false);
 			expect(() => {
-				game.moveChessman(sourceCoordinate, destinationCoordinate);
-			}).to.throw("Incorrect invariant for moving");
-		}
+				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
+			}).to.throw(invariantErrorMessage);
 
-		function expectCorrectMoving(
-			game: Game,
-			sourceCoordinate: BoardCoordinate,
-			destinationCoordinate: BoardCoordinate,
-		) {
-			expect(game.canMoveChessman(sourceCoordinate, destinationCoordinate)).to.equal(true);
-
-			game.moveChessman(sourceCoordinate, destinationCoordinate);
-
-			expect(game.board.hasChessmanByCoordinate(sourceCoordinate)).to.equal(false);
-			expect(game.board.hasChessmanByCoordinate(destinationCoordinate)).to.equal(true);
-			expect(game.board.activeCoordinate).to.equal(destinationCoordinate);
-		}
-
-		it("can't move if chessman wasn't selected", () => {
-			expectIncorrectMoving(Game.createOnRegularMode(), "e4", "e5");
+			expectCorrectNewGameState(game, "regular");
 		});
 
 		it("can't capture own chessman", () => {
-			expectIncorrectMoving(Game.createOnRegularMode(), "b1", "d2");
+			const game = Game.createOnRegularMode();
+			const chessman = "white-knight";
+			const sourceCoordinate = "b1";
+			const destinationCoordinate = "d2";
+
+			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
+
+			expect(canMove).to.equal(false);
+			expect(() => {
+				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
+			}).to.throw(invariantErrorMessage);
+
+			expectCorrectNewGameState(game, "regular");
 		});
 
 		it("can't capture a King", () => {
 			const game = Game.createOnRegularMode();
 
-			game.moveChessman("d2", "d4");
-			game.moveChessman("e7", "e5");
-			game.moveChessman("d4", "e5");
-			game.moveChessman("f8", "b4");
-			game.moveChessman("e2", "e4");
+			game.moveChessman("white-pawn", "d2", "d4");
+			game.moveChessman("black-pawn", "e7", "e5");
+			game.moveChessman("white-pawn", "d4", "e5");
+			game.moveChessman("black-bishop", "f8", "b4");
+			game.moveChessman("white-pawn", "e2", "e4");
 
-			expectIncorrectMoving(game, "b4", "e1");
+			const chessman = "white-bishop";
+			const sourceCoordinate = "b4";
+			const destinationCoordinate = "e1";
+
+			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
+
+			expect(canMove).to.equal(false);
+			expect(() => {
+				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
+			}).to.throw(invariantErrorMessage);
+
+			expectCorrectBoardState(game, {
+				activeCoordinate: "e4",
+				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
+					.remove("d2", "e2", "f8", "e7")
+					.set("e4", "white-pawn")
+					.set("e5", "white-pawn")
+					.set("b4", "black-bishop")
+					.getMap(),
+			});
 		});
 
 		it("can move to empty cell", () => {
 			const game = Game.createOnRegularMode();
+			const chessman = "white-pawn";
+			const sourceCoordinate = "e2";
+			const destinationCoordinate = "e4";
 
-			expectCorrectMoving(game, "e2", "e4");
-			expectRegularGameChessmenArrangement({
-				game,
-				activeCoordinate: "e4",
-				changeMap: new Map([
-					["e2", null],
-					["e4", "white-pawn"],
-				]),
+			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
+			game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
+
+			expect(canMove).to.equal(true);
+			expectCorrectGameStateAfterSingleAction(game, {
+				chessmanMap: new ChessmenMapTuner(initialChessmenArrangement)
+					.remove(sourceCoordinate)
+					.set(destinationCoordinate, chessman)
+					.getMap(),
+				activeCoordinate: destinationCoordinate,
+				historyItem: new HistoryItemsTuner()
+					.pushMovingAction(chessman, sourceCoordinate, destinationCoordinate)
+					.getSingleItem(),
 			});
 		});
 
 		it("can capture not own chessman", () => {
 			const game = Game.createOnRegularMode();
 
-			game.moveChessman("e2", "e4");
-			game.moveChessman("d7", "d5");
+			game.moveChessman("white-pawn", "e2", "e4");
+			game.moveChessman("black-pawn", "d7", "d5");
 
-			expectCorrectMoving(game, "e4", "d5");
-			expectRegularGameChessmenArrangement({
-				game,
-				activeCoordinate: "d5",
-				changeMap: new Map([
-					["e2", null],
-					["d7", null],
-					["d5", "white-pawn"],
-				]),
+			const chessman = "white-pawn";
+			const sourceCoordinate = "e4";
+			const destinationCoordinate = "d5";
+
+			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
+			game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
+
+			expect(canMove).to.equal(true);
+			expectCorrectBoardState(game, {
+				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
+					.remove("e2", "d7", sourceCoordinate)
+					.set(destinationCoordinate, chessman)
+					.getMap(),
+				activeCoordinate: destinationCoordinate,
 			});
 		});
 	});
 
-	describe("can remove/remove chessman", () => {
-		function expectIncorrectRemoving(game: Game, coordinate: BoardCoordinate) {
-			expect(game.canRemoveChessman(coordinate)).to.equal(false);
-			expect(() => {
-				game.removeChessman(coordinate);
-			}).to.throw("Incorrect invariant for removing");
-		}
-
-		function expectCorrectRemoving(game: Game, coordinate: BoardCoordinate) {
-			expect(game.canRemoveChessman(coordinate)).to.equal(true);
-
-			game.removeChessman(coordinate);
-
-			expect(game.board.hasChessmanByCoordinate(coordinate)).to.equal(false);
-			expect(game.board.activeCoordinate).to.equal(coordinate);
-		}
+	describe("removing chessman", () => {
+		const invariantErrorMessage = "Incorrect invariant for removing";
 
 		it("can't remove if chessman wasn't selected", () => {
-			expectIncorrectRemoving(Game.createOnRegularMode(), "e4");
+			const game = Game.createOnRegularMode();
+			const chessman = "white-pawn";
+			const coordinate = "e4";
+
+			const canRemove = game.canRemoveChessman(chessman, coordinate);
+
+			expect(canRemove).to.equal(false);
+
+			expect(() => {
+				game.removeChessman(chessman, coordinate);
+			}).to.throw(invariantErrorMessage);
+
+			expectCorrectNewGameState(game, "regular");
 		});
 
 		(
@@ -250,190 +285,194 @@ describe("domain", () => {
 			it(`can't remove '${chessman}' (regular mode of game)`, () => {
 				const game = Game.createOnRegularMode();
 
-				expectIncorrectRemoving(game, coordinate);
+				const canRemove = game.canRemoveChessman(chessman, coordinate);
+
+				expect(canRemove).to.equal(false);
+
+				expect(() => {
+					game.removeChessman(chessman, coordinate);
+				}).to.throw(invariantErrorMessage);
+
+				expectCorrectNewGameState(game, "regular");
 			});
 
 			it(`can't remove '${chessman}' also after adding (empty board mode of game)`, () => {
 				const game = Game.createOnEmptyBoardMode();
-				game.addChessman(coordinate, chessman);
+				game.addChessman(chessman, coordinate);
 
-				expectIncorrectRemoving(game, coordinate);
+				const canRemove = game.canRemoveChessman(chessman, coordinate);
+
+				expect(canRemove).to.equal(false);
+
+				expect(() => {
+					game.removeChessman(chessman, coordinate);
+				}).to.throw(invariantErrorMessage);
+
+				expectCorrectBoardState(game, {
+					activeCoordinate: coordinate,
+					chessmenMap: new ChessmenMapTuner().set(coordinate, chessman).getMap(),
+				});
 			});
 		});
 
 		(
 			[
-				"a2",
-				"b2",
-				"c2",
-				"d2",
-				"e2",
-				"f2",
-				"g2",
-				"h2",
-				"a1",
-				"b1",
-				"c1",
-				"d1",
-				"f1",
-				"g1",
-				"h1",
-			] as BoardCoordinate[]
-		).forEach((coordinate) => {
-			it(`can remove chessman on '${coordinate}' on new game (regular mode)`, () => {
+				["a2", "white-pawn"],
+				["b2", "white-pawn"],
+				["c2", "white-pawn"],
+				["d2", "white-pawn"],
+				["e2", "white-pawn"],
+				["f2", "white-pawn"],
+				["g2", "white-pawn"],
+				["h2", "white-pawn"],
+				["a1", "white-rook"],
+				["b1", "white-knight"],
+				["c1", "white-bishop"],
+				["d1", "white-queen"],
+				["f1", "white-bishop"],
+				["g1", "white-knight"],
+				["h1", "white-rook"],
+			] as Array<[BoardCoordinate, Chessman]>
+		).forEach(([coordinate, chessman]) => {
+			it(`can remove chessman '${chessman}' on '${coordinate}' on new game (regular mode)`, () => {
 				const game = Game.createOnRegularMode();
+				const canRemove = game.canRemoveChessman(chessman, coordinate);
 
-				expectCorrectRemoving(game, coordinate);
-				expectRegularGameChessmenArrangement({
-					game,
+				game.removeChessman(chessman, coordinate);
+
+				expect(canRemove).to.equal(true);
+
+				expectCorrectGameStateAfterSingleAction(game, {
+					chessmanMap: new ChessmenMapTuner(initialChessmenArrangement).remove(coordinate).getMap(),
 					activeCoordinate: coordinate,
-					changeMap: new Map([[coordinate, null]]),
+					historyItem: new HistoryItemsTuner().pushRemovingAction(chessman, coordinate).getSingleItem(),
 				});
 			});
 		});
 	});
 
-	describe("history index & movements", () => {
-		const simpleSingleActions: ReadonlyArray<[string, () => Game]> = [
-			[
-				"adding",
-				() => {
-					const game = Game.createOnRegularMode();
-					game.addChessman("h3", "white-bishop");
-					return game;
-				},
-			],
-			[
-				"moving",
-				() => {
-					const game = Game.createOnRegularMode();
-					game.moveChessman("e2", "e4");
-					return game;
-				},
-			],
-			[
-				"removing",
-				() => {
-					const game = Game.createOnRegularMode();
-					game.removeChessman("a2");
-					return game;
-				},
-			],
-		];
-
-		[
-			["regular mode", Game.createOnRegularMode()] as const,
-			["empty board mode", Game.createOnEmptyBoardMode()] as const,
-		].forEach(([modeLabel, game]) => {
-			it(`can't go back or forward on new game (${modeLabel})`, () => {
-				expect(game.history.canGoBack).to.equal(false);
-				expect(game.history.canGoForward).to.equal(false);
-			});
-		});
-
-		simpleSingleActions.forEach(([name, action]) => {
-			it(`can go back after first '${name}' action`, () => {
-				const game = action();
-
-				expect(game.history.canGoBack).to.equal(true);
-			});
-
-			it(`history index is moved after first '${name}' action`, () => {
-				const game = action();
-
-				expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
-			});
-		});
-
-		it("can't go forward after first action", () => {
+	describe("history", () => {
+		it("can go forward after first action with going back (regular mode)", () => {
 			const game = Game.createOnRegularMode();
+			const chessman = "white-pawn";
+			const sourceCoordinate = "e2";
+			const destinationCoordinate = "e4";
 
-			game.moveChessman("e2", "e4");
-
-			expect(game.history.canGoForward).to.equal(false);
-		});
-
-		it("can go forward after first action & going back (regular mode)", () => {
-			const game = Game.createOnRegularMode();
-
-			game.moveChessman("e2", "e4");
+			game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
 			game.history.goBack();
 
-			expect(game.history.canGoForward).to.equal(true);
+			expectCorrectHistoryState(game, {
+				currentIndex: undefined,
+				canGoForward: true,
+				canGoBack: false,
+				items: new HistoryItemsTuner()
+					.pushMovingAction(chessman, sourceCoordinate, destinationCoordinate)
+					.getItems(),
+			});
+
+			expectCorrectBoardState(game, {
+				activeCoordinate: null,
+				chessmenMap: initialChessmenArrangement,
+			});
 		});
 
-		it("can go forward after first action & going back (empty board mode)", () => {
+		it("can go forward after first action with going back (empty board mode)", () => {
 			const game = Game.createOnEmptyBoardMode();
+			const chessman = "white-pawn";
+			const coordinate = "e2";
 
-			game.addChessman("e2", "white-pawn");
+			game.addChessman(chessman, coordinate);
 			game.history.goBack();
 
-			expect(game.history.canGoForward).to.equal(true);
+			expectCorrectHistoryState(game, {
+				currentIndex: undefined,
+				canGoForward: true,
+				canGoBack: false,
+				items: new HistoryItemsTuner().pushAddingAction(chessman, coordinate).getItems(),
+			});
+
+			expectCorrectBoardState(game, {
+				activeCoordinate: null,
+				chessmenMap: new Map(),
+			});
 		});
 
 		it("forward steps resets after new action", () => {
 			const game = Game.createOnRegularMode();
 
-			game.moveChessman("e2", "e4");
-			game.moveChessman("e7", "e5");
-			game.moveChessman("d2", "d3");
-			game.moveChessman("d7", "d6");
+			game.moveChessman("white-pawn", "e2", "e4");
+			game.moveChessman("black-pawn", "e7", "e5");
+			game.moveChessman("white-pawn", "d2", "d3");
+			game.moveChessman("black-pawn", "d7", "d6");
 
 			game.history.goBack();
-			game.moveChessman("d7", "d5");
+			game.moveChessman("black-pawn", "d7", "d5");
+			game.moveChessman("white-pawn", "e4", "d5");
 
-			expect(game.history.canGoForward).to.equal(false);
-		});
+			expectCorrectHistoryState(game, {
+				currentIndex: 4,
+				canGoForward: false,
+				canGoBack: true,
+				items: new HistoryItemsTuner()
+					.pushMovingAction("white-pawn", "e2", "e4")
+					.pushMovingAction("black-pawn", "e7", "e5")
+					.pushMovingAction("white-pawn", "d2", "d3")
+					.pushMovingAction("black-pawn", "d7", "d5")
+					.pushMovingAction("white-pawn", "e4", "d5", true)
+					.getItems(),
+			});
 
-		simpleSingleActions.forEach(([name, action]) => {
-			it(`go back after first '${name}' action translate state to new game (regular mode)`, () => {
-				const game = action();
-
-				game.history.goBack();
-
-				expectRegularGameChessmenArrangement({ game });
-				expect(game.board.activeCoordinate).to.equal(null);
-				expect(game.history.canGoBack).to.equal(false);
-				expect(game.history.canGoForward).to.equal(true);
+			expectCorrectBoardState(game, {
+				activeCoordinate: "d5",
+				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
+					.remove("e2", "d2", "e7", "d7")
+					.set("d3", "white-pawn")
+					.set("d5", "white-pawn")
+					.set("e5", "black-pawn")
+					.getMap(),
 			});
 		});
 
 		it("correct state after go back & go forward", () => {
 			const game = Game.createOnRegularMode();
 
-			game.moveChessman("e2", "e4");
-			game.moveChessman("e7", "e5");
-			game.moveChessman("d2", "d3");
-			game.moveChessman("d7", "d6");
+			game.moveChessman("white-pawn", "e2", "e4");
+			game.moveChessman("black-pawn", "e7", "e5");
+			game.moveChessman("white-pawn", "d2", "d3");
+			game.moveChessman("black-pawn", "d7", "d6");
 
 			game.history.goBack();
 			game.history.goBack();
 			game.history.goForward();
-			game.history.goForward();
 
-			expectRegularGameChessmenArrangement({
-				game,
-				changeMap: new Map([
-					["e2", null],
-					["e4", "white-pawn"],
-					["d2", null],
-					["d3", "white-pawn"],
-					["e7", null],
-					["e5", "black-pawn"],
-					["d7", null],
-					["d6", "black-pawn"],
-				]),
-				activeCoordinate: "d6",
+			expectCorrectHistoryState(game, {
+				currentIndex: 2,
+				canGoForward: true,
+				canGoBack: true,
+				items: new HistoryItemsTuner()
+					.pushMovingAction("white-pawn", "e2", "e4")
+					.pushMovingAction("black-pawn", "e7", "e5")
+					.pushMovingAction("white-pawn", "d2", "d3")
+					.pushMovingAction("black-pawn", "d7", "d6")
+					.getItems(),
 			});
 
-			expect(game.history.isCurrentHistoryIndex(3)).to.equal(true);
+			expectCorrectBoardState(game, {
+				activeCoordinate: "d3",
+				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
+					.remove("e2", "e7", "d2")
+					.set("e4", "white-pawn")
+					.set("d3", "white-pawn")
+					.set("e5", "black-pawn")
+					.getMap(),
+			});
 		});
 
 		[-1, 1, 100].forEach((index) => {
 			it(`can't go by incorrect index '${index}'`, () => {
 				const game = Game.createOnRegularMode();
 
-				game.moveChessman("e2", "e4");
+				game.moveChessman("white-pawn", "e2", "e4");
 
 				expect(() => {
 					game.history.goByHistoryIndex(index);
@@ -443,16 +482,33 @@ describe("domain", () => {
 
 		it("can go by correct index", () => {
 			const game = Game.createOnEmptyBoardMode();
+			const chessman = "white-pawn";
 
-			game.addChessman("e2", "white-pawn");
-			game.moveChessman("e2", "e4");
-			game.moveChessman("e4", "e5");
-			game.moveChessman("e5", "e6");
+			game.addChessman(chessman, "e2");
+			game.moveChessman(chessman, "e2", "e4");
+			game.moveChessman(chessman, "e4", "e5");
+			game.moveChessman(chessman, "e5", "e6");
+			game.removeChessman(chessman, "e6");
 
 			game.history.goByHistoryIndex(0);
 
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
-			expectChessmanArrangement({ game, chessmenMap: new Map([["e2", "white-pawn"]]), activeCoordinate: "e2" });
+			expectCorrectHistoryState(game, {
+				currentIndex: 0,
+				canGoForward: true,
+				canGoBack: true,
+				items: new HistoryItemsTuner()
+					.pushAddingAction(chessman, "e2")
+					.pushMovingAction(chessman, "e2", "e4")
+					.pushMovingAction(chessman, "e4", "e5")
+					.pushMovingAction(chessman, "e5", "e6")
+					.pushRemovingAction(chessman, "e6")
+					.getItems(),
+			});
+
+			expectCorrectBoardState(game, {
+				activeCoordinate: "e2",
+				chessmenMap: new ChessmenMapTuner().set("e2", chessman).getMap(),
+			});
 		});
 
 		[-1, 0].forEach((index) => {
@@ -465,7 +521,7 @@ describe("domain", () => {
 			it(`current history index can't be '${index}' after first action & going back`, () => {
 				const game = Game.createOnRegularMode();
 
-				game.moveChessman("e2", "e4");
+				game.moveChessman("white-pawn", "e2", "e4");
 				game.history.goBack();
 
 				expect(game.history.isCurrentHistoryIndex(index)).to.equal(false);
@@ -473,179 +529,56 @@ describe("domain", () => {
 		});
 	});
 
-	describe("history items", () => {
-		it("empty on new game", () => {
-			const game = Game.createOnRegularMode();
+	describe("chessmen diff", () => {
+		it("diff after adding action", () => {
+			const game = Game.createOnEmptyBoardMode();
+			const chessman = "white-king";
 
-			expect(game.history.items.length).to.equal(0);
+			game.addChessman(chessman, "a1");
+
+			expectCorrectChessmenDiffState(game, [{ chessman, num: 1 }]);
 		});
 
-		it("correct items after adding chessman", () => {
+		it("diff after removing action", () => {
 			const game = Game.createOnRegularMode();
 
-			game.addChessman("e3", "white-rook");
+			game.removeChessman("white-rook", "a1");
 
-			const item = game.history.items[0]!;
-
-			expect(game.history.items.length).to.equal(1);
-
-			expect(item).to.eql({
-				action: "adding",
-				chessman: "white-rook",
-				coordinate: "e3",
-			});
-
-			expectRegularGameChessmenArrangement({
-				game,
-				changeMap: new Map([["e3", "white-rook"]]),
-				activeCoordinate: "e3",
-			});
-
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
+			expectCorrectChessmenDiffState(game, [{ chessman: "black-rook", num: 1 }]);
 		});
 
-		it("correct items after removing chessman", () => {
+		it("diff after moving with capture", () => {
 			const game = Game.createOnRegularMode();
 
-			game.removeChessman("a2");
+			game.moveChessman("white-pawn", "e2", "e4");
+			game.moveChessman("black-pawn", "d7", "d5");
+			game.moveChessman("white-pawn", "e4", "d5");
 
-			const item = game.history.items[0]!;
-
-			expect(game.history.items.length).to.equal(1);
-
-			expect(item).to.eql({
-				action: "removing",
-				chessman: "white-pawn",
-				coordinate: "a2",
-			});
-
-			expectRegularGameChessmenArrangement({ game, changeMap: new Map([["a2", null]]), activeCoordinate: "a2" });
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
+			expectCorrectChessmenDiffState(game, [{ chessman: "white-pawn", num: 1 }]);
 		});
 
-		it("correct items after moving chessman", () => {
-			const game = Game.createOnRegularMode();
+		it("several same chessmen in diff", () => {
+			const game = Game.createOnEmptyBoardMode();
+			const chessman = "white-pawn";
 
-			game.moveChessman("e2", "e4");
+			game.addChessman(chessman, "a2");
+			game.addChessman(chessman, "b2");
+			game.addChessman(chessman, "c2");
 
-			const item = game.history.items[0]!;
-
-			expect(game.history.items.length).to.equal(1);
-
-			expect(item).to.eql({
-				action: "moving",
-				chessman: "white-pawn",
-				sourceCoordinate: "e2",
-				destinationCoordinate: "e4",
-				isCapture: false,
-			});
-
-			expectRegularGameChessmenArrangement({
-				game,
-				changeMap: new Map([
-					["e2", null],
-					["e4", "white-pawn"],
-				]),
-				activeCoordinate: "e4",
-			});
-
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
+			expectCorrectChessmenDiffState(game, [{ chessman, num: 3 }]);
 		});
 
-		it("correct items after several moving actions", () => {
-			const game = Game.createOnRegularMode();
+		it("several chessmen in diff for each color", () => {
+			const game = Game.createOnEmptyBoardMode();
 
-			game.moveChessman("e2", "e4");
-			game.moveChessman("d7", "d5");
-			game.moveChessman("e4", "d5");
+			game.addChessman("white-knight", "g5");
+			game.addChessman("black-bishop", "b3");
+			game.addChessman("white-knight", "c7");
 
-			const item = game.history.items[2]!;
-
-			expect(game.history.items.length).to.equal(3);
-
-			expect(item).to.eql({
-				action: "moving",
-				chessman: "white-pawn",
-				sourceCoordinate: "e4",
-				destinationCoordinate: "d5",
-				isCapture: true,
-			});
-
-			expectRegularGameChessmenArrangement({
-				game,
-				changeMap: new Map([
-					["e2", null],
-					["d7", null],
-					["d5", "white-pawn"],
-				]),
-				activeCoordinate: "d5",
-			});
-
-			expect(game.history.isCurrentHistoryIndex(2)).to.equal(true);
-		});
-
-		it("items aren't changed after go back/forward by history", () => {
-			const game = Game.createOnRegularMode();
-
-			game.moveChessman("e2", "e4");
-			game.moveChessman("d7", "d5");
-
-			const itemsCount = game.history.items.length;
-
-			game.history.goBack();
-			game.history.goBack();
-			game.history.goForward();
-
-			expect(game.history.items.length).to.equal(itemsCount);
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
-		});
-
-		it("items aren't changed after go by index", () => {
-			const game = Game.createOnRegularMode();
-
-			game.moveChessman("e2", "e4");
-			game.moveChessman("d7", "d5");
-
-			const itemsCount = game.history.items.length;
-
-			game.history.goByHistoryIndex(0);
-
-			expect(game.history.items.length).to.equal(itemsCount);
-			expect(game.history.isCurrentHistoryIndex(0)).to.equal(true);
-		});
-
-		it("items are changed after go back/forward by history with replacement", () => {
-			const game = Game.createOnRegularMode();
-
-			game.moveChessman("e2", "e4");
-			game.moveChessman("d7", "d5");
-			game.moveChessman("e4", "d5");
-
-			game.history.goBack();
-			game.history.goBack();
-			game.moveChessman("e7", "e5");
-
-			const { items } = game.history;
-
-			expect(items.length).to.equal(2);
-
-			expect(items[0]!).to.eql({
-				action: "moving",
-				chessman: "white-pawn",
-				sourceCoordinate: "e2",
-				destinationCoordinate: "e4",
-				isCapture: false,
-			});
-
-			expect(items[1]!).to.eql({
-				action: "moving",
-				chessman: "black-pawn",
-				sourceCoordinate: "e7",
-				destinationCoordinate: "e5",
-				isCapture: false,
-			});
-
-			expect(game.history.isCurrentHistoryIndex(1)).to.equal(true);
+			expectCorrectChessmenDiffState(game, [
+				{ chessman: "white-knight", num: 2 },
+				{ chessman: "black-bishop", num: 1 },
+			]);
 		});
 	});
 });

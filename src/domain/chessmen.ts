@@ -1,26 +1,23 @@
-type BoardRank = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
-type BoardFile = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
-
-const boardRanks: ReadonlyArray<BoardRank> = ["1", "2", "3", "4", "5", "6", "7", "8"];
-const boardFiles: ReadonlyArray<BoardFile> = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-export type BoardCoordinate = `${BoardFile}${BoardRank}`;
-
-export const boardCoordinates: ReadonlyArray<BoardCoordinate> = boardFiles.flatMap((file) =>
-	boardRanks.map<BoardCoordinate>((rank) => `${file}${rank}`),
-);
-
-export type Chessman = `${Color}-${ChessmanType}`;
+import type { Coordinate } from "./board";
 
 export interface ChessmanInfo {
-	readonly color: Color;
+	readonly color: ChessmanColor;
 	readonly type: ChessmanType;
 }
 
-export type Color = "white" | "black";
+export type ChessmanColor = "white" | "black";
 export type ChessmanType = "pawn" | "knight" | "bishop" | "rook" | "queen" | "king";
+export type Chessman = `${ChessmanColor}-${ChessmanType}`;
+export type ChessmenMap = ReadonlyMap<Coordinate, Chessman>;
 
-export const chessmenArrangement: ReadonlyArray<readonly [BoardCoordinate, Chessman]> = [
+export const chessmanColors: ReadonlyArray<ChessmanColor> = ["white", "black"];
+export const chessmanTypes: ReadonlyArray<ChessmanType> = ["king", "queen", "rook", "bishop", "knight", "pawn"];
+
+export const chessmen: ReadonlyArray<Chessman> = chessmanTypes.flatMap((type) =>
+	chessmanColors.map<Chessman>((color) => getChessmanByParams(color, type)),
+);
+
+export const chessmenArrangement: ChessmenMap = new Map([
 	["a2", "white-pawn"],
 	["b2", "white-pawn"],
 	["c2", "white-pawn"],
@@ -53,9 +50,13 @@ export const chessmenArrangement: ReadonlyArray<readonly [BoardCoordinate, Chess
 	["f8", "black-bishop"],
 	["g8", "black-knight"],
 	["h8", "black-rook"],
-];
+]);
 
 export function getChessmanInfo(chessman: Chessman): Readonly<ChessmanInfo> {
-	const [color, type] = chessman.split("-") as [Color, ChessmanType];
+	const [color, type] = chessman.split("-") as [ChessmanColor, ChessmanType];
 	return { color, type };
+}
+
+export function getChessmanByParams(color: ChessmanColor, type: ChessmanType): Chessman {
+	return `${color}-${type}`;
 }

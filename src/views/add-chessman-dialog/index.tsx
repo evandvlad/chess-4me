@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from "react";
 
-import type { Chessman as IChessman } from "~/domain";
+import type { Chessman as DomainChessman } from "~/domain";
 
-import { Chessman } from "../chessman";
+import { Option } from "./option";
 
 import styles from "./add-chessman-dialog.module.scss";
 
@@ -11,32 +11,19 @@ interface HtmlDialog extends HTMLElement {
 	close: () => void;
 }
 
-function Option({ chessman, onSelect }: { chessman: IChessman; onSelect: (chessman: IChessman) => void }) {
-	function handleClick() {
-		onSelect(chessman);
-	}
-
-	return (
-		<button type="button" className={styles.option} onClick={handleClick} data-test-chessman-option={chessman}>
-			<Chessman chessman={chessman} />
-		</button>
-	);
+interface Props {
+	availableChessmen: ReadonlyArray<DomainChessman>;
+	onClose: (result: DomainChessman | null) => void;
 }
 
-export function AddChessmanDialog({
-	availableChessmen,
-	onClose,
-}: {
-	availableChessmen: ReadonlyArray<IChessman>;
-	onClose: (result: IChessman | null) => void;
-}): JSX.Element {
+export function AddChessmanDialog({ availableChessmen, onClose }: Props) {
 	const dialogRef = useRef<HtmlDialog>(null);
 
 	function handleClose() {
 		onClose(null);
 	}
 
-	function handleSelect(chessman: IChessman) {
+	function handleSelect(chessman: DomainChessman) {
 		onClose(chessman);
 	}
 

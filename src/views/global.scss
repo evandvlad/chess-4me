@@ -31,3 +31,21 @@ button {
 dialog {
 	border: none;
 }
+
+::-webkit-scrollbar-thumb {
+	background: colors.$brown-middle;
+}
+
+::-webkit-scrollbar {
+	$scrollbar-width: 7px;
+
+	background: colors.$gray-light;
+
+	&:horizontal {
+		height: $scrollbar-width;
+	}
+
+	&:vertical {
+		width: $scrollbar-width;
+	}
+}

@@ -11,11 +11,11 @@ export class AddChessmanDialog {
 		this.#chessmenComponent = chessmen;
 	}
 
-	assertVisibility(isEnabled = true): void {
+	assertVisibility(isEnabled = true) {
 		cy.get(this.#selector).should(isEnabled ? "be.visible" : "not.exist");
 	}
 
-	select(chessman: Chessman): void {
+	select(chessman: Chessman) {
 		this.#chessmenComponent.select(this.#selector, chessman);
 	}
 

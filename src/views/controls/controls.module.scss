@@ -8,9 +8,9 @@ $-icon-types: "empty-board", "new-game", "flip-board", "go-back", "go-forward", 
 	justify-content: center;
 }
 
-.iconButton {
+.button {
 	aspect-ratio: 1;
-	height: 100%;
+	height: 16px;
 	margin: 0 2%;
 	background-color: colors.$brown-dark;
 

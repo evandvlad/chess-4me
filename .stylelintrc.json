@@ -5,8 +5,22 @@
 		"indentation": "tab",
 		"at-rule-no-unknown": [
 			true,
-			{ "ignoreAtRules": ["use", "mixin", "include", "function", "if", "return", "each", "for", "content", "error"] }
+			{
+				"ignoreAtRules": [
+					"use",
+					"mixin",
+					"include",
+					"function",
+					"if",
+					"return",
+					"each",
+					"for",
+					"content",
+					"error"
+				]
+			}
 		],
+		"selector-pseudo-class-no-unknown": [true, { "ignorePseudoClasses": ["vertical", "horizontal"] }],
 		"declaration-block-no-redundant-longhand-properties": null,
 		"property-no-vendor-prefix": null,
 		"selector-class-pattern": null

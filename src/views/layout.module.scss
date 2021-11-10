@@ -1,31 +1,30 @@
 @use "./colors";
+@use "./helpers";
 
 .site {
-	$controls-area-height: 40px;
+	$controls-area-height: 30px;
 	$board-area: calc(100vh - $controls-area-height);
 
 	display: grid;
 	grid-template-areas:
-		"board history"
-		"controls history";
+		"board sidebar"
+		"controls .";
 	grid-template-rows: $board-area $controls-area-height;
 	grid-template-columns: $board-area auto;
 }
 
 .board {
 	grid-area: board;
-	margin: 20px;
+	margin: helpers.$layout-components-indent;
 }
 
 .controls {
 	grid-area: controls;
 	position: relative;
-	margin-bottom: 20px;
+	margin: 0 helpers.$layout-components-indent;
 }
 
-.history {
-	grid-area: history;
-	margin: 20px 20px 20px 0;
-	border-left: 1px solid colors.$brown-dark;
-	padding-left: 15px;
+.sidebar {
+	grid-area: sidebar;
+	margin: helpers.$layout-components-indent 0;
 }

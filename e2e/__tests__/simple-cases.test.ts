@@ -3,7 +3,7 @@ import type { BoardCoordinate, Chessman } from "../app-values";
 
 import { comparePositionsOnScreens } from "../utils/position-on-screen";
 import { forceTypify } from "../utils/force-typify";
-import { board, controls, app, addChessmanDialog, history } from "../app-components";
+import { board, controls, app, addChessmanDialog, history, sidebarTabs, chessmenDiff } from "../app-components";
 import { initialChessmenArrangement, allChessmen } from "../app-values";
 
 describe("simple cases", () => {
@@ -16,7 +16,7 @@ describe("simple cases", () => {
 		board.assertSelectedCell(null);
 		board.assertFocusedCell(null);
 
-		app.assertChessmenArrangement(initialChessmenArrangement);
+		board.assertChessmenMap(initialChessmenArrangement);
 
 		controls.assertControlAvailability("empty-board");
 		controls.assertControlAvailability("new-game");
@@ -26,6 +26,7 @@ describe("simple cases", () => {
 		controls.assertControlAvailability("add-chessman", false);
 		controls.assertControlAvailability("remove-chessman", false);
 
+		sidebarTabs.assertActiveTab("history");
 		history.assertItems([]);
 	});
 
@@ -113,7 +114,7 @@ describe("simple cases", () => {
 
 			history.assertItems([
 				{
-					num: 1,
+					index: 0,
 					isCurrent: true,
 					value: "moving:white-pawn:e2-e4",
 				},
@@ -173,7 +174,7 @@ describe("simple cases", () => {
 
 			history.assertItems([
 				{
-					num: 1,
+					index: 0,
 					isCurrent: true,
 					value: "adding:white-queen:e5",
 				},
@@ -226,7 +227,7 @@ describe("simple cases", () => {
 
 			history.assertItems([
 				{
-					num: 1,
+					index: 0,
 					isCurrent: true,
 					value: "removing:white-pawn:a2",
 				},
@@ -289,7 +290,7 @@ describe("simple cases", () => {
 			controls.assertControlAvailability("go-forward", false);
 
 			controls.performAction("go-back");
-			app.assertChessmenArrangement([]);
+			app.assertChessmenArrangement(new Map());
 		});
 
 		it("can't go forward if history rewritten", () => {
@@ -297,7 +298,7 @@ describe("simple cases", () => {
 			app.moveChessman("black-pawn", "e7", "e5");
 			app.moveChessman("white-knight", "g1", "f3");
 
-			history.selectByNumber(1);
+			history.selectByIndex(0);
 			controls.performAction("go-back");
 
 			app.moveChessman("white-pawn", "e2", "e3");
@@ -309,7 +310,7 @@ describe("simple cases", () => {
 			app.moveChessman("black-pawn", "e7", "e5");
 			app.moveChessman("white-knight", "g1", "f3");
 
-			history.assertCurrentItemNumber(3);
+			history.assertCurrentItemIndex(2);
 		});
 
 		it("hasn't current item when is going to initial state", () => {
@@ -317,12 +318,12 @@ describe("simple cases", () => {
 			app.moveChessman("black-pawn", "e7", "e5");
 			app.moveChessman("white-knight", "g1", "f3");
 
-			history.selectByNumber(1);
+			history.selectByIndex(0);
 			controls.performAction("go-back");
 
 			app.assertChessmenArrangement(initialChessmenArrangement);
 
-			history.assertCurrentItemNumber(undefined);
+			history.assertCurrentItemIndex(undefined);
 		});
 
 		it("items are in correct state if history rewritten", () => {
@@ -330,21 +331,87 @@ describe("simple cases", () => {
 			app.moveChessman("black-pawn", "d7", "d5");
 			app.moveChessman("white-pawn", "e4", "d5");
 
-			history.selectByNumber(1);
+			history.selectByIndex(0);
 			app.moveChessman("black-pawn", "e7", "e5");
 
 			history.assertItems([
 				{
-					num: 2,
+					index: 1,
 					isCurrent: true,
 					value: "moving:black-pawn:e7-e5",
 				},
 				{
-					num: 1,
+					index: 0,
 					isCurrent: false,
 					value: "moving:white-pawn:e2-e4",
 				},
 			]);
+		});
+	});
+
+	describe("chessmen diff", () => {
+		beforeEach(() => {
+			sidebarTabs.goToTab("diff");
+		});
+
+		it("no differences after simple movings", () => {
+			app.moveChessman("white-pawn", "e2", "e4");
+			app.moveChessman("black-pawn", "e7", "e5");
+			app.moveChessman("white-knight", "g1", "f3");
+
+			chessmenDiff.assertItems([]);
+		});
+
+		it("differences after moving with capture", () => {
+			app.moveChessman("white-pawn", "e2", "e4");
+			app.moveChessman("black-pawn", "d7", "d5");
+			app.moveChessman("white-pawn", "e4", "d5");
+
+			chessmenDiff.assertItems(["white-pawn:1"]);
+		});
+
+		it("differences after adding", () => {
+			app.newGameOnEmptyBoardMode("diff");
+
+			app.addChessman("white-rook", "a1");
+
+			chessmenDiff.assertItems(["white-rook:1"]);
+		});
+
+		it("differences after removing", () => {
+			app.removeChessman("black-knight", "b8");
+
+			chessmenDiff.assertItems(["white-knight:1"]);
+		});
+
+		it("no differences if to add same chessman for each color", () => {
+			app.newGameOnEmptyBoardMode("diff");
+
+			app.addChessman("white-pawn", "e2");
+			app.addChessman("black-pawn", "e7");
+
+			chessmenDiff.assertItems([]);
+		});
+
+		it("sync with history", () => {
+			app.newGameOnEmptyBoardMode("diff");
+
+			app.addChessman("white-pawn", "a2");
+			app.addChessman("white-pawn", "b2");
+			app.addChessman("white-pawn", "c2");
+			app.addChessman("white-pawn", "d2");
+			app.addChessman("white-pawn", "e2");
+			app.addChessman("white-pawn", "f2");
+			app.addChessman("white-pawn", "g2");
+			app.addChessman("white-pawn", "h2");
+
+			chessmenDiff.assertItems(["white-pawn:8"]);
+
+			sidebarTabs.goToTab("history");
+			app.goByHistoryIndex(1);
+			sidebarTabs.goToTab("diff");
+
+			chessmenDiff.assertItems(["white-pawn:2"]);
 		});
 	});
 });

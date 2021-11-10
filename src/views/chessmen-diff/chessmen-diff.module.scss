@@ -1,0 +1,42 @@
+@use "../helpers";
+@use "../colors";
+
+.diff {
+	display: flex;
+	flex-direction: column;
+
+	@include helpers.empty-state("No differences");
+}
+
+.group {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.item {
+	display: flex;
+	position: relative;
+}
+
+.itemNum {
+	$size: 20px;
+
+	display: flex;
+	position: absolute;
+	width: $size;
+	height: $size;
+	color: colors.$white;
+	background-color: colors.$brown-dark;
+	align-items: center;
+	justify-content: center;
+	bottom: 0;
+	right: 0;
+	border-radius: $size;
+	border: 1px solid colors.$white;
+	cursor: default;
+	font-size: 10px;
+}
+
+.chessman {
+	width: 32px;
+}

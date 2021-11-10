@@ -14,15 +14,15 @@ export class History {
 		});
 	}
 
-	assertCurrentItemNumber(num: number | undefined) {
+	assertCurrentItemIndex(index: number | undefined) {
 		this.#getItems().then((items) => {
-			const currentItem = items.find(({ isCurrent }) => isCurrent) ?? { num: undefined };
-			expect(currentItem.num).to.equal(num);
+			const currentItem = items.find(({ isCurrent }) => isCurrent) ?? { index: undefined };
+			expect(currentItem.index).to.equal(index);
 		});
 	}
 
-	selectByNumber(num: number) {
-		const selector = joinSelectors(this.#selector, createSelector(this.#itemAttributeName, num.toString()));
+	selectByIndex(index: number) {
+		const selector = joinSelectors(this.#selector, createSelector(this.#itemAttributeName, index.toString()));
 		cy.get(selector).click();
 	}
 
@@ -31,7 +31,7 @@ export class History {
 			const items = $parent[0]!.querySelectorAll(createSelector(this.#itemAttributeName));
 
 			return Array.from(items).map((item) => ({
-				num: Number(item.getAttribute(this.#itemAttributeName)),
+				index: Number(item.getAttribute(this.#itemAttributeName)),
 				isCurrent: item.hasAttribute(this.#itemCurrentAttributeName),
 				value: item
 					.querySelector(createSelector(this.#itemContentAttributeName))!

@@ -1,69 +1,83 @@
 import React from "react";
-import { observer } from "mobx-react-lite";
+import { observer, Observer } from "mobx-react-lite";
 
-import type { Controls as IControls } from "~/view-models";
+import type { Controls as ViewModelControls } from "~/view-models";
 
-import { IconButton } from "./icon-button";
+import { Button } from "./button";
 import { AddChessmanControl } from "./add-chessman-control";
 
 import styles from "./controls.module.scss";
 
-const ReactiveAddChessmanControl = observer(AddChessmanControl);
-
 interface Props {
-	controls: IControls;
+	viewModel: ViewModelControls;
 }
 
-export const Controls = observer(function Controls({ controls }: Props): JSX.Element {
+export const Controls = observer(function ControlsObserver({ viewModel }: Props) {
 	return (
 		<div className={styles.controls} data-test-controls="">
-			<IconButton
+			<Button
 				title="Empty Board"
 				iconType="empty-board"
-				onClick={controls.emptyBoard}
+				onClick={viewModel.emptyBoard}
 				data-test-control="empty-board"
 			/>
-			<IconButton title="New Game" iconType="new-game" onClick={controls.newGame} data-test-control="new-game" />
-			<IconButton
+			<Button title="New Game" iconType="new-game" onClick={viewModel.newGame} data-test-control="new-game" />
+			<Button
 				title="Flip Board"
 				iconType="flip-board"
-				onClick={controls.flipBoard}
+				onClick={viewModel.flipBoard}
 				data-test-control="flip-board"
 			/>
-			<IconButton
-				title="Go Back"
-				iconType="go-back"
-				onClick={controls.goBack}
-				isDisabled={!controls.isGoBackActionAvailable}
-				data-test-control="go-back"
-			/>
-			<IconButton
-				title="Go Forward"
-				iconType="go-forward"
-				onClick={controls.goForward}
-				isDisabled={!controls.isGoForwardActionAvailable}
-				data-test-control="go-forward"
-			/>
-			<ReactiveAddChessmanControl
-				onAddChessman={controls.addChessman}
-				getAvailableChessmen={controls.getAvailableChessmenForAdding}
-				renderButton={(onClick) => (
-					<IconButton
-						title="Add Chessman"
-						iconType="add-chessman"
-						onClick={onClick}
-						isDisabled={!controls.isAddChessmanActionAvailable}
-						data-test-control="add-chessman"
+			<Observer>
+				{() => (
+					<Button
+						title="Go Back"
+						iconType="go-back"
+						onClick={viewModel.goBack}
+						isDisabled={!viewModel.isGoBackActionAvailable}
+						data-test-control="go-back"
 					/>
 				)}
+			</Observer>
+			<Observer>
+				{() => (
+					<Button
+						title="Go Forward"
+						iconType="go-forward"
+						onClick={viewModel.goForward}
+						isDisabled={!viewModel.isGoForwardActionAvailable}
+						data-test-control="go-forward"
+					/>
+				)}
+			</Observer>
+			<AddChessmanControl
+				onAddChessman={viewModel.addChessman}
+				getAvailableChessmen={viewModel.getAvailableChessmenForAdding}
+				renderButton={(onClick) => (
+					<Observer>
+						{() => (
+							<Button
+								title="Add Chessman"
+								iconType="add-chessman"
+								onClick={onClick}
+								isDisabled={!viewModel.isAddChessmanActionAvailable}
+								data-test-control="add-chessman"
+							/>
+						)}
+					</Observer>
+				)}
 			/>
-			<IconButton
-				title="Remove Chessman"
-				iconType="remove-chessman"
-				onClick={controls.removeChessman}
-				isDisabled={!controls.isRemoveChessmanActionAvailable}
-				data-test-control="remove-chessman"
-			/>
+			<Observer>
+				{() => (
+					<Button
+						title="Remove Chessman"
+						iconType="remove-chessman"
+						onClick={viewModel.removeChessman}
+						isDisabled={!viewModel.isRemoveChessmanActionAvailable}
+						data-test-control="remove-chessman"
+					/>
+				)}
+			</Observer>
 		</div>
 	);
 });

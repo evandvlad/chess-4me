@@ -1,7 +1,7 @@
 import webpackPreprocessor from "@cypress/webpack-preprocessor";
 import path from "path";
 
-export default (on: Cypress.PluginEvents): void => {
+export default (on: Cypress.PluginEvents) => {
 	on(
 		"file:preprocessor",
 		webpackPreprocessor({

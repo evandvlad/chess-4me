@@ -1,32 +1,29 @@
-import React from "react";
+import React, { memo } from "react";
 
-import type { HistoryItem } from "~/domain";
+import type { HistoryItem } from "~/view-models";
 
 import { cssClassNames } from "~/utils/css-class-names";
 import { Content } from "./content";
 
 import styles from "./history.module.scss";
 
-interface Props {
-	item: HistoryItem;
-	index: number;
-	isCurrent: boolean;
+interface Props extends HistoryItem {
 	select: (index: number) => void;
 }
 
-export function Item({ item, index, isCurrent, select }: Props) {
+const MemoContent = memo(Content);
+
+export function Item({ index, isCurrent, data, select }: Props) {
 	function handleClick() {
 		select(index);
 	}
 
-	const classNames = cssClassNames(styles.link, {
+	const classNames = cssClassNames(styles.item, {
 		[styles.current!]: isCurrent,
 	});
 
-	const num = index + 1;
-
 	const dataAttributes: Record<`data-test-${string}`, string> = {
-		"data-test-history-item": num.toString(),
+		"data-test-history-item": String(index),
 	};
 
 	if (isCurrent) {
@@ -34,10 +31,10 @@ export function Item({ item, index, isCurrent, select }: Props) {
 	}
 
 	return (
-		<span className={styles.item}>
-			<button {...dataAttributes} type="button" className={classNames} onClick={handleClick}>
-				<Content num={num} item={item} />
+		<li className={styles.itemWrapper}>
+			<button type="button" className={classNames} {...dataAttributes} onClick={handleClick}>
+				<MemoContent {...data} />
 			</button>
-		</span>
+		</li>
 	);
 }

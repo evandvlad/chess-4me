@@ -1,4 +1,4 @@
-import type { ChessmenArrangement } from "../app-values";
+import type { ChessmenMap } from "../app-values";
 
 import { app } from "../app-components";
 import { initialChessmenArrangement } from "../app-values";
@@ -72,7 +72,7 @@ describe("complex cases", () => {
 	});
 
 	it("set custom position", () => {
-		const chessmenArrangement: ChessmenArrangement = [
+		const chessmenMap: ChessmenMap = new Map([
 			["e3", "white-king"],
 			["d6", "black-king"],
 			["c5", "white-rook"],
@@ -88,15 +88,15 @@ describe("complex cases", () => {
 			["f6", "black-pawn"],
 			["g7", "black-pawn"],
 			["h6", "black-pawn"],
-		];
+		]);
 
 		app.newGameOnEmptyBoardMode();
 
-		chessmenArrangement.forEach(([coordinate, chessman]) => {
+		chessmenMap.forEach((chessman, coordinate) => {
 			app.addChessman(chessman, coordinate);
 		});
 
-		app.assertChessmenArrangement(chessmenArrangement);
+		app.assertChessmenArrangement(chessmenMap);
 	});
 
 	it("playing with going back & forward", () => {
@@ -147,29 +147,29 @@ describe("complex cases", () => {
 		app.moveChessman("black-pawn", "e7", "e5");
 		app.moveChessman("white-knight", "g1", "f3");
 
-		app.goByHistoryNumber(1);
+		app.goByHistoryIndex(0);
 
 		app.moveChessman("black-pawn", "d7", "d5");
 		app.moveChessman("white-pawn", "d2", "d4");
 		app.moveChessman("black-pawn", "d5", "e4");
 
-		app.goByHistoryNumber(2);
+		app.goByHistoryIndex(1);
 
 		app.moveChessman("white-pawn", "e4", "d5");
 		app.moveChessman("black-queen", "d8", "d5");
 		app.moveChessman("white-pawn", "d2", "d4");
 
-		app.goByHistoryNumber(4);
+		app.goByHistoryIndex(3);
 
 		app.removeChessman("white-pawn", "d2");
 		app.addChessman("white-pawn", "d4");
 
-		app.goByHistoryNumber(1);
+		app.goByHistoryIndex(0);
 		app.goBack();
 
 		app.assertChessmenArrangement(initialChessmenArrangement);
 
-		app.goByHistoryNumber(6);
+		app.goByHistoryIndex(5);
 
 		app.assertHistory(
 			[
@@ -180,7 +180,90 @@ describe("complex cases", () => {
 				"moving:black-pawn:d7-d5",
 				"moving:white-pawn:e2-e4",
 			],
-			6,
+			5,
 		);
+	});
+
+	it("chessmen diff", () => {
+		app.goToTabOnSidebar("diff");
+		app.newGameOnEmptyBoardMode("diff");
+
+		app.addChessman("white-pawn", "a2");
+		app.addChessman("white-rook", "a1");
+
+		app.assertChessmenDiff(["white-rook:1", "white-pawn:1"]);
+
+		app.addChessman("white-pawn", "b2");
+		app.addChessman("white-knight", "b1");
+		app.addChessman("white-pawn", "c2");
+
+		app.assertChessmenDiff(["white-rook:1", "white-knight:1", "white-pawn:3"]);
+
+		app.addChessman("black-pawn", "a7");
+		app.addChessman("black-pawn", "b7");
+
+		app.assertChessmenDiff(["white-rook:1", "white-knight:1", "white-pawn:1"]);
+
+		app.addChessman("black-pawn", "c7");
+		app.addChessman("black-knight", "b8");
+		app.addChessman("black-bishop", "c8");
+
+		app.assertChessmenDiff(["white-rook:1", "black-bishop:1"]);
+
+		app.addChessman("white-bishop", "c1");
+		app.addChessman("white-queen", "d1");
+		app.addChessman("white-king", "e1");
+		app.addChessman("white-bishop", "f1");
+
+		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1"]);
+
+		app.addChessman("black-pawn", "d7");
+		app.addChessman("black-pawn", "e7");
+		app.addChessman("black-pawn", "f7");
+		app.addChessman("black-pawn", "g7");
+		app.addChessman("black-pawn", "h7");
+
+		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1", "black-pawn:5"]);
+
+		app.addChessman("black-rook", "a8");
+		app.addChessman("black-rook", "h8");
+		app.addChessman("white-pawn", "d2");
+		app.addChessman("white-pawn", "e2");
+		app.addChessman("white-pawn", "f2");
+
+		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:2"]);
+
+		app.addChessman("black-knight", "g8");
+		app.addChessman("black-bishop", "f8");
+		app.addChessman("black-king", "e8");
+		app.addChessman("black-queen", "d8");
+
+		app.assertChessmenDiff(["black-rook:1", "black-knight:1", "black-pawn:2"]);
+
+		app.addChessman("white-knight", "g1");
+		app.addChessman("white-rook", "h1");
+		app.addChessman("white-pawn", "g2");
+		app.addChessman("white-pawn", "h2");
+
+		app.assertChessmenDiff([]);
+
+		app.goBack();
+		app.goBack();
+
+		app.assertChessmenDiff(["black-pawn:2"]);
+
+		app.goForward();
+		app.goForward();
+
+		app.assertChessmenDiff([]);
+
+		app.goToTabOnSidebar("history");
+		app.goByHistoryIndex(22);
+		app.goToTabOnSidebar("diff");
+
+		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:3"]);
+
+		app.newGameOnRegularMode("diff");
+		app.assertChessmenDiff([]);
 	});
 });
