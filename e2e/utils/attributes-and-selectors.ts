@@ -8,7 +8,7 @@ export function createAttributeName(name: string): AttributeName {
 	return `data-test-${name}`;
 }
 
-export function createSelector<T extends { toString: () => string }>(attributeName: AttributeName, value?: T): string {
+export function createSelector<T extends { toString: () => string }>(attributeName: AttributeName, value?: T) {
 	if (typeof value === "undefined") {
 		return `[${attributeName}]`;
 	}
@@ -16,7 +16,7 @@ export function createSelector<T extends { toString: () => string }>(attributeNa
 	return `[${attributeName}="${value.toString()}"]`;
 }
 
-export function joinSelectors(selector1: string, selector2: string): string {
+export function joinSelectors(selector1: string, selector2: string) {
 	return [selector1, selector2].join(" ");
 }
 

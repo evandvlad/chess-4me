@@ -3,10 +3,10 @@ const path = require("path");
 
 app.on("ready", () => {
 	const mainWindow = new BrowserWindow({
-		width: 680,
-		height: 530,
-		minWidth: 680,
-		minHeight: 530,
+		width: 660,
+		height: 523,
+		minWidth: 660,
+		minHeight: 523,
 		autoHideMenuBar: true,
 		show: false,
 	});

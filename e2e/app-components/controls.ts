@@ -6,11 +6,11 @@ export class Controls {
 	readonly #selector = createSelector(createAttributeName("controls"));
 	readonly #controlAttributeName = createAttributeName("control");
 
-	assertControlAvailability(controlName: GameControlName, isEnabled = true): void {
+	assertControlAvailability(controlName: GameControlName, isEnabled = true) {
 		this.#getControl(controlName).should(isEnabled ? "be.enabled" : "be.disabled");
 	}
 
-	performAction(controlName: GameControlName): void {
+	performAction(controlName: GameControlName) {
 		this.#getControl(controlName).click();
 	}
 

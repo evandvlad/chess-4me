@@ -1,92 +1,108 @@
 import { makeObservable, computed } from "mobx";
 
-import type { GameManagement } from "./game-management";
+import type { GameManager } from "./game-manager";
 import type { Board } from "./board";
 import type { Chessman } from "~/domain";
 
 import { assert } from "~/utils/assert";
 
 export class Controls {
-	#gameManagement: GameManagement;
+	#gameManager: GameManager;
 	#board: Board;
 
-	constructor(gameManagement: GameManagement, board: Board) {
+	constructor(gameManager: GameManager, board: Board) {
 		makeObservable(this);
 
-		this.#gameManagement = gameManagement;
+		this.#gameManager = gameManager;
 		this.#board = board;
 	}
 
 	@computed
-	get isGoBackActionAvailable(): boolean {
-		const { history } = this.#gameManagement.currentGame;
+	get isGoBackActionAvailable() {
+		const { history } = this.#gameManager.currentGame;
 		return history.canGoBack;
 	}
 
 	@computed
-	get isGoForwardActionAvailable(): boolean {
-		const { history } = this.#gameManagement.currentGame;
+	get isGoForwardActionAvailable() {
+		const { history } = this.#gameManager.currentGame;
 		return history.canGoForward;
 	}
 
 	@computed
-	get isAddChessmanActionAvailable(): boolean {
-		const { board } = this.#gameManagement.currentGame;
-		return this.#board.hasSelectedCell && !board.hasChessmanByCoordinate(this.#board.selectedCell!);
+	get isAddChessmanActionAvailable() {
+		const { chessmenMap } = this.#gameManager.currentGame.boardState;
+		return this.#board.selectedCell !== null && !chessmenMap.has(this.#board.selectedCell);
 	}
 
 	@computed
-	get isRemoveChessmanActionAvailable(): boolean {
-		const { currentGame } = this.#gameManagement;
-		return this.#board.hasSelectedCell && currentGame.canRemoveChessman(this.#board.selectedCell!);
+	get isRemoveChessmanActionAvailable() {
+		const { currentGame } = this.#gameManager;
+		const { selectedCell } = this.#board;
+
+		if (!selectedCell) {
+			return false;
+		}
+
+		const { chessmenMap } = currentGame.boardState;
+		const chessman = chessmenMap.get(selectedCell);
+
+		if (!chessman) {
+			return false;
+		}
+
+		return currentGame.canRemoveChessman(chessman, selectedCell);
 	}
 
 	getAvailableChessmenForAdding = (): ReadonlyArray<Chessman> => {
-		const { currentGame } = this.#gameManagement;
+		const { currentGame } = this.#gameManager;
 		return currentGame.availableChessmenForAdding;
 	};
 
-	emptyBoard = (): void => {
-		this.#gameManagement.newGameOnEmptyBoardMode();
+	emptyBoard = () => {
+		this.#gameManager.newGameOnEmptyBoardMode();
 		this.#board.clearSelection();
 	};
 
-	newGame = (): void => {
-		this.#gameManagement.newGameOnRegularMode();
+	newGame = () => {
+		this.#gameManager.newGameOnRegularMode();
 		this.#board.clearSelection();
 	};
 
-	goBack = (): void => {
+	goBack = () => {
 		assert(this.isGoBackActionAvailable, "'Go Back' action isn't available");
 
-		const { history } = this.#gameManagement.currentGame;
+		const { history } = this.#gameManager.currentGame;
 		history.goBack();
 	};
 
-	goForward = (): void => {
+	goForward = () => {
 		assert(this.isGoForwardActionAvailable, "'Go Forward' action isn't available");
 
-		const { history } = this.#gameManagement.currentGame;
+		const { history } = this.#gameManager.currentGame;
 		history.goForward();
 	};
 
-	addChessman = (chessman: Chessman): void => {
+	addChessman = (chessman: Chessman) => {
 		assert(this.isAddChessmanActionAvailable, "'Add Chessman' action isn't available");
 
-		const { currentGame } = this.#gameManagement;
-		currentGame.addChessman(this.#board.selectedCell!, chessman);
+		const { currentGame } = this.#gameManager;
+		currentGame.addChessman(chessman, this.#board.selectedCell!);
 		this.#board.clearSelection();
 	};
 
-	removeChessman = (): void => {
+	removeChessman = () => {
 		assert(this.isRemoveChessmanActionAvailable, "'Remove Chessman' action isn't available");
 
-		const { currentGame } = this.#gameManagement;
-		currentGame.removeChessman(this.#board.selectedCell!);
+		const { currentGame } = this.#gameManager;
+		const selectedCell = this.#board.selectedCell!;
+		const chessman = currentGame.boardState.chessmenMap.get(selectedCell)!;
+
+		currentGame.removeChessman(chessman, selectedCell);
 		this.#board.clearSelection();
 	};
 
-	flipBoard = (): void => {
+	flipBoard = () => {
 		this.#board.flip();
 	};
 }

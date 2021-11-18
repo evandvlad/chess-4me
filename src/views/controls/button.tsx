@@ -10,12 +10,12 @@ interface Props {
 	[attrName: `data-test-${string}`]: string;
 }
 
-export function IconButton({ title, onClick, iconType, isDisabled = false, ...rest }: Props): JSX.Element {
+export function Button({ title, onClick, iconType, isDisabled = false, ...rest }: Props) {
 	return (
 		<button
 			{...rest}
 			type="button"
-			className={styles.iconButton}
+			className={styles.button}
 			title={title}
 			disabled={isDisabled}
 			onClick={onClick}

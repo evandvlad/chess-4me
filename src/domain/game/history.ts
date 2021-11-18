@@ -1,11 +1,47 @@
 import { makeObservable, computed, observable, action } from "mobx";
 
-import type { HistoryClientAPI, HistoryRecord, BoardState } from "./values";
+import type { Coordinate } from "../board";
+import type { Chessman } from "../chessmen";
+import type { BoardState } from "./board-state";
 
 import { assert } from "~/utils/assert";
 import { EventsHub } from "~/utils/events-hub";
 
 const initialStateCursorPosition = -1;
+
+export type HistoryItem =
+	| {
+			readonly action: "adding";
+			readonly chessman: Chessman;
+			readonly coordinate: Coordinate;
+	  }
+	| {
+			readonly action: "removing";
+			readonly chessman: Chessman;
+			readonly coordinate: Coordinate;
+	  }
+	| {
+			readonly action: "moving";
+			readonly chessman: Chessman;
+			readonly sourceCoordinate: Coordinate;
+			readonly destinationCoordinate: Coordinate;
+			readonly isCapture: boolean;
+	  };
+
+export interface HistoryClientAPI {
+	readonly canGoBack: boolean;
+	readonly canGoForward: boolean;
+	readonly items: ReadonlyArray<HistoryItem>;
+	goBack: () => void;
+	goForward: () => void;
+	goByHistoryIndex: (index: number) => void;
+	isCurrentHistoryIndex: (index: number) => boolean;
+}
+
+interface HistoryRecord {
+	readonly item: HistoryItem;
+	readonly boardState: BoardState;
+}
 
 export class History implements HistoryClientAPI {
 	@observable.shallow private readonly records: HistoryRecord[] = [];
@@ -28,31 +64,31 @@ export class History implements HistoryClientAPI {
 	}
 
 	@computed
-	get currentBoardState(): BoardState {
+	get currentBoardState() {
 		return this.cursorPosition > initialStateCursorPosition
 			? this.records[this.cursorPosition]!.boardState
 			: this.#initialBoardState;
 	}
 
 	@computed
-	get canGoBack(): boolean {
+	get canGoBack() {
 		return this.cursorPosition > initialStateCursorPosition;
 	}
 
 	@computed
-	get canGoForward(): boolean {
+	get canGoForward() {
 		return this.cursorPosition < this.#lastRecordsIndex;
 	}
 
 	@action
-	goBack(): void {
+	goBack() {
 		assert(this.canGoBack, "Incorrect invariant for go back");
 		this.cursorPosition -= 1;
 		this.#eventsHub.trigger("changed");
 	}
 
 	@action
-	goForward(): void {
+	goForward() {
 		assert(this.canGoForward, "Incorrect invariant for go forward");
 		this.cursorPosition += 1;
 		this.#eventsHub.trigger("changed");
@@ -70,7 +106,7 @@ export class History implements HistoryClientAPI {
 	}
 
 	@action
-	pushRecord(record: HistoryRecord): void {
+	pushRecord(record: HistoryRecord) {
 		if (this.cursorPosition > initialStateCursorPosition) {
 			this.records.splice(this.cursorPosition + 1);
 		}

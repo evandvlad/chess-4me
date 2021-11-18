@@ -10,7 +10,7 @@ interface Props {
 	renderButton: (onClick: () => void) => ReactNode;
 }
 
-export function AddChessmanControl({ onAddChessman, getAvailableChessmen, renderButton }: Props): JSX.Element {
+export function AddChessmanControl({ onAddChessman, getAvailableChessmen, renderButton }: Props) {
 	const [isDialogVisible, updateDialogVisibility] = useState(false);
 
 	function handleClick() {

@@ -5,9 +5,12 @@ import { App } from "~/view-models";
 import { Board } from "./board";
 import { Controls } from "./controls";
 import { History } from "./history";
+import { ChessmenDiff } from "./chessmen-diff";
+
+import { SidebarTabs, SidebarTab } from "./sidebar-tabs";
 
 import "./global.scss";
-import styles from "./main.module.scss";
+import styles from "./layout.module.scss";
 
 function getPageWrapper() {
 	const pageWrapperId = "page-wrapper";
@@ -27,19 +30,26 @@ const pageWrapper = getPageWrapper();
 
 document.body.append(pageWrapper);
 
-function Main(): JSX.Element {
+function Main() {
 	const app = new App();
 
 	return (
 		<div className={styles.site}>
 			<div className={styles.board}>
-				<Board board={app.board} />
+				<Board viewModel={app.board} />
 			</div>
 			<div className={styles.controls}>
-				<Controls controls={app.controls} />
+				<Controls viewModel={app.controls} />
 			</div>
-			<div className={styles.history}>
-				<History history={app.history} />
+			<div className={styles.sidebar}>
+				<SidebarTabs>
+					<SidebarTab name="history" title="History">
+						<History viewModel={app.history} />
+					</SidebarTab>
+					<SidebarTab name="diff" title="Diff">
+						<ChessmenDiff viewModel={app.chessmenDiff} />
+					</SidebarTab>
+				</SidebarTabs>
 			</div>
 		</div>
 	);

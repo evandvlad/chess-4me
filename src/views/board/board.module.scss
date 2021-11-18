@@ -1,4 +1,5 @@
 @use "../colors";
+@use "../helpers" as gh;
 @use "./helpers";
 
 @mixin -set-cell-styles($is-board-flipped) {
@@ -31,7 +32,7 @@
 	grid-template: repeat(#{$board-size}, 1fr) / repeat(#{$board-size}, 1fr);
 	height: 100%;
 	aspect-ratio: 1;
-	border: 3px solid colors.$brown-dark;
+	border: gh.$common-outline-block-width solid gh.$common-outline-block-color;
 
 	.cell {
 		@include -set-cell-styles($is-board-flipped: false);

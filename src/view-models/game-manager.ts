@@ -2,7 +2,7 @@ import { makeObservable, observable, computed, action } from "mobx";
 
 import { Game } from "~/domain";
 
-export class GameManagement {
+export class GameManager {
 	@observable.ref private game: Game;
 
 	constructor() {
@@ -12,17 +12,17 @@ export class GameManagement {
 	}
 
 	@action
-	newGameOnRegularMode(): void {
+	newGameOnRegularMode() {
 		this.game = Game.createOnRegularMode();
 	}
 
 	@action
-	newGameOnEmptyBoardMode(): void {
+	newGameOnEmptyBoardMode() {
 		this.game = Game.createOnEmptyBoardMode();
 	}
 
 	@computed
-	get currentGame(): Game {
+	get currentGame() {
 		return this.game;
 	}
 }

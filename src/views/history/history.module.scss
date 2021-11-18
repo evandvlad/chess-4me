@@ -1,42 +1,34 @@
 @use "../colors";
+@use "../helpers";
 
 .list {
 	display: flex;
 	flex-wrap: wrap;
-	max-height: 100%;
-	overflow-y: auto;
-	overflow-x: hidden;
+	list-style-position: inside;
 
-	&::-webkit-scrollbar {
-		display: none;
-	}
+	@include helpers.empty-state("Empty history");
+}
 
-	&:empty::before {
-		content: "Empty history";
-		color: colors.$gray-middle;
-		font-style: italic;
-		padding: 5px 0 0;
-	}
+.itemWrapper {
+	display: flex;
+	min-width: 90px;
+	padding: 2px 0;
 }
 
 .item {
-	user-select: none;
-	min-width: 85px;
-}
-
-.link {
 	display: flex;
-	align-items: center;
-	padding: 2px 0;
-	cursor: pointer;
 	border-bottom: 1px dashed transparent;
-	width: fit-content;
 	opacity: 60%;
 
 	&.current {
 		border-bottom-color: colors.$black;
 		opacity: 100%;
 		cursor: default;
+	}
+
+	&::before {
+		display: list-item;
+		content: "";
 	}
 }
 
@@ -46,8 +38,5 @@
 }
 
 .chessman {
-	$size: 16px;
-
-	width: $size;
-	height: $size;
+	width: 16px;
 }

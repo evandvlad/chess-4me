@@ -18,7 +18,7 @@ export class EventsHub<T extends Record<string, unknown[]>> {
 		};
 	}
 
-	trigger<K extends keyof T>(event: K, ...args: T[K]): void {
+	trigger<K extends keyof T>(event: K, ...args: T[K]) {
 		this.#eventsListeners[event]?.forEach((listener) => {
 			listener(...args);
 		});

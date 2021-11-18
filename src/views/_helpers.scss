@@ -1,0 +1,14 @@
+@use "./colors";
+
+$layout-components-indent: 15px;
+$common-outline-block-width: 3px;
+$common-outline-block-color: colors.$brown-dark;
+
+@mixin empty-state($content) {
+	&:empty::before {
+		content: $content;
+		color: colors.$gray-middle;
+		font-style: italic;
+		padding: 5px 0 0;
+	}
+}

@@ -1,4 +1,4 @@
-import type { BoardDirection, BoardCoordinate, Chessman } from "../app-values";
+import type { BoardDirection, BoardCoordinate, Chessman, ChessmenMap } from "../app-values";
 import type { OptionalValueBox } from "../utils/optional-value-box";
 import type { PositionOnScreen } from "../utils/position-on-screen";
 import type { Chessmen } from "./chessmen";
@@ -9,6 +9,7 @@ import {
 	joinSelectors,
 	extractAttributeValue,
 } from "../utils/attributes-and-selectors";
+import { boardCoordinates } from "../app-values";
 
 export class Board {
 	readonly #attributeName = createAttributeName("board");
@@ -25,16 +26,16 @@ export class Board {
 		this.#chessmenComponent = chessmen;
 	}
 
-	assertDirection(direction: BoardDirection): void {
+	assertDirection(direction: BoardDirection) {
 		const selector = createSelector(this.#attributeName, direction);
 		cy.get(selector).should("have.attr", this.#attributeName, direction);
 	}
 
-	assertFocusedCell(coordinate: BoardCoordinate | null): void {
+	assertFocusedCell(coordinate: BoardCoordinate | null) {
 		this.#assertActiveCell(this.#focusedCellSelector, coordinate);
 	}
 
-	assertSelectedCell(coordinate: BoardCoordinate | null): void {
+	assertSelectedCell(coordinate: BoardCoordinate | null) {
 		this.#assertActiveCell(this.#selectedCellSelector, coordinate);
 	}
 
@@ -45,7 +46,7 @@ export class Board {
 		});
 	}
 
-	selectCell(coordinate: BoardCoordinate): void {
+	selectCell(coordinate: BoardCoordinate) {
 		this.#getCell(coordinate).click();
 	}
 
@@ -56,11 +57,11 @@ export class Board {
 		});
 	}
 
-	assertChessman(chessman: Chessman | null, coordinate: BoardCoordinate): void {
+	assertChessman(chessman: Chessman | undefined, coordinate: BoardCoordinate) {
 		const selector = joinSelectors(this.#selector, createSelector(this.#cellAttributeName, coordinate));
 
 		this.#chessmenComponent.get(selector).should("satisfy", (vals: Chessman[]) => {
-			if (chessman === null) {
+			if (chessman === undefined) {
 				return vals.length === 0;
 			}
 
@@ -68,7 +69,13 @@ export class Board {
 		});
 	}
 
-	#assertActiveCell(activeCellSelector: string, coordinate: BoardCoordinate | null): void {
+	assertChessmenMap(chessmenMap: ChessmenMap) {
+		boardCoordinates.forEach((coordinate) => {
+			this.assertChessman(chessmenMap.get(coordinate), coordinate);
+		});
+	}
+
+	#assertActiveCell(activeCellSelector: string, coordinate: BoardCoordinate | null) {
 		const selector = joinSelectors(this.#selector, activeCellSelector);
 
 		if (coordinate === null) {

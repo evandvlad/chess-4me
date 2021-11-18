@@ -1,0 +1,37 @@
+@use "../colors";
+@use "../helpers";
+
+.tabs {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.nav {
+	display: flex;
+	padding-left: 10px;
+	border-bottom: helpers.$common-outline-block-width solid helpers.$common-outline-block-color;
+}
+
+.navItem {
+	padding: 3px 15px;
+	font-weight: bold;
+	border: helpers.$common-outline-block-width solid transparent;
+	border-bottom: none;
+
+	&.active {
+		background: colors.$white;
+		border-color: helpers.$common-outline-block-color;
+		border-bottom: none;
+		cursor: default;
+		position: relative;
+		margin-bottom: -#{helpers.$common-outline-block-width};
+	}
+}
+
+.content {
+	padding: 5px 0;
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
