@@ -8,7 +8,7 @@ describe("utils/events-hub", () => {
 		eventsHub.on("event", listener);
 		eventsHub.trigger("event", 5, "test", true);
 
-		expect(listener).to.be.calledWith(5, "test", true);
+		expect(listener).calledWith(5, "test", true);
 	});
 
 	it("several events & listeners with disposing", () => {
@@ -31,10 +31,10 @@ describe("utils/events-hub", () => {
 		eventsHub.trigger("event1", "test3");
 		eventsHub.trigger("event2", false);
 
-		expect(event1Listener).to.have.callCount(1);
-		expect(event1Listener).to.be.calledWith("test2");
+		expect(event1Listener).callCount(1);
+		expect(event1Listener).calledWith("test2");
 
-		expect(event2Listener).to.have.callCount(2);
-		expect(event2Listener).to.be.calledWith(false);
+		expect(event2Listener).callCount(2);
+		expect(event2Listener).calledWith(false);
 	});
 });

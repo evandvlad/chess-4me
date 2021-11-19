@@ -1,22 +1,17 @@
 import type { SidebarTabsTab } from "../app-values";
 
-import { createAttributeName, createSelector, joinSelectors } from "../utils/attributes-and-selectors";
-
 export class SidebarTabs {
-	readonly #selector = createSelector(createAttributeName("sidebar-tabs"));
-	readonly #navItemAttributeName = createAttributeName("sidebar-tabs-nav-item");
-	readonly #activeNavItemAttributeName = createAttributeName("sidebar-tabs-nav-item-active");
+	readonly #selector = "[data-test-sidebar-tabs]";
+	readonly #activeNavItemSelector = "[data-test-sidebar-tabs-nav-item-active]";
+	readonly #navItemAttributeName = "data-test-sidebar-tabs-nav-item";
 
-	assertActiveTab(tab: SidebarTabsTab) {
-		this.#getTab(tab).should("have.attr", this.#activeNavItemAttributeName);
+	getActiveTab() {
+		const selector = `${this.#selector} ${this.#activeNavItemSelector}`;
+		return cy.get(selector).then(($tab) => $tab[0]!.getAttribute(this.#navItemAttributeName) as SidebarTabsTab);
 	}
 
 	goToTab(tab: SidebarTabsTab) {
-		this.#getTab(tab).click();
-	}
-
-	#getTab(tab: SidebarTabsTab) {
-		const selector = joinSelectors(this.#selector, createSelector(this.#navItemAttributeName, tab));
-		return cy.get(selector);
+		const selector = `${this.#selector} [${this.#navItemAttributeName}="${tab}"]`;
+		cy.get(selector).click();
 	}
 }

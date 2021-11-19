@@ -129,16 +129,10 @@ export const boardCoordinates: ReadonlyArray<BoardCoordinate> = [
 	"h8",
 ];
 
-export type HistoryItemValue =
+export type HistoryItem =
 	| `adding:${Chessman}:${BoardCoordinate}`
 	| `removing:${Chessman}:${BoardCoordinate}`
 	| `moving:${Chessman}:${BoardCoordinate}${"-" | "x"}${BoardCoordinate}`;
-
-export interface HistoryItem {
-	index: number;
-	isCurrent: boolean;
-	value: HistoryItemValue;
-}
 
 export type SidebarTabsTab = "history" | "diff";
 

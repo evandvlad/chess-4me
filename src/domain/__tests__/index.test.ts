@@ -15,7 +15,7 @@ import {
 describe("domain", () => {
 	it("all board coordinates are unique", () => {
 		const coordinatesSet = new Set(boardCoordinates);
-		expect(boardCoordinates.length).to.equal(coordinatesSet.size);
+		expect(boardCoordinates.length).equal(coordinatesSet.size);
 	});
 
 	it("new game on regular mode has correct state", () => {
@@ -35,7 +35,7 @@ describe("domain", () => {
 			const availableChessmen = game.availableChessmenForAdding;
 			const isAvailableForAdding = availableChessmen.some((availableChessman) => availableChessman === chessman);
 
-			expect(isAvailableForAdding).to.equal(isExpectedAsAvailable);
+			expect(isAvailableForAdding).equal(isExpectedAsAvailable);
 		}
 
 		it("both Kings aren't available for adding if they are on board", () => {
@@ -115,7 +115,7 @@ describe("domain", () => {
 
 			expect(() => {
 				game.addChessman("white-rook", "e2");
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectNewGameState(game, "regular");
 		});
@@ -125,7 +125,7 @@ describe("domain", () => {
 
 			expect(() => {
 				game.addChessman("white-king", "e4");
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectNewGameState(game, "regular");
 		});
@@ -156,10 +156,10 @@ describe("domain", () => {
 
 			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
 
-			expect(canMove).to.equal(false);
+			expect(canMove).equal(false);
 			expect(() => {
 				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectNewGameState(game, "regular");
 		});
@@ -172,10 +172,10 @@ describe("domain", () => {
 
 			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
 
-			expect(canMove).to.equal(false);
+			expect(canMove).equal(false);
 			expect(() => {
 				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectNewGameState(game, "regular");
 		});
@@ -195,10 +195,10 @@ describe("domain", () => {
 
 			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
 
-			expect(canMove).to.equal(false);
+			expect(canMove).equal(false);
 			expect(() => {
 				game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectBoardState(game, {
 				activeCoordinate: "e4",
@@ -220,7 +220,7 @@ describe("domain", () => {
 			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
 			game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
 
-			expect(canMove).to.equal(true);
+			expect(canMove).equal(true);
 			expectCorrectGameStateAfterSingleAction(game, {
 				chessmanMap: new ChessmenMapTuner(initialChessmenArrangement)
 					.remove(sourceCoordinate)
@@ -246,7 +246,7 @@ describe("domain", () => {
 			const canMove = game.canMoveChessman(chessman, sourceCoordinate, destinationCoordinate);
 			game.moveChessman(chessman, sourceCoordinate, destinationCoordinate);
 
-			expect(canMove).to.equal(true);
+			expect(canMove).equal(true);
 			expectCorrectBoardState(game, {
 				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
 					.remove("e2", "d7", sourceCoordinate)
@@ -267,11 +267,11 @@ describe("domain", () => {
 
 			const canRemove = game.canRemoveChessman(chessman, coordinate);
 
-			expect(canRemove).to.equal(false);
+			expect(canRemove).equal(false);
 
 			expect(() => {
 				game.removeChessman(chessman, coordinate);
-			}).to.throw(invariantErrorMessage);
+			}).throw(invariantErrorMessage);
 
 			expectCorrectNewGameState(game, "regular");
 		});
@@ -287,11 +287,11 @@ describe("domain", () => {
 
 				const canRemove = game.canRemoveChessman(chessman, coordinate);
 
-				expect(canRemove).to.equal(false);
+				expect(canRemove).equal(false);
 
 				expect(() => {
 					game.removeChessman(chessman, coordinate);
-				}).to.throw(invariantErrorMessage);
+				}).throw(invariantErrorMessage);
 
 				expectCorrectNewGameState(game, "regular");
 			});
@@ -302,11 +302,11 @@ describe("domain", () => {
 
 				const canRemove = game.canRemoveChessman(chessman, coordinate);
 
-				expect(canRemove).to.equal(false);
+				expect(canRemove).equal(false);
 
 				expect(() => {
 					game.removeChessman(chessman, coordinate);
-				}).to.throw(invariantErrorMessage);
+				}).throw(invariantErrorMessage);
 
 				expectCorrectBoardState(game, {
 					activeCoordinate: coordinate,
@@ -340,7 +340,7 @@ describe("domain", () => {
 
 				game.removeChessman(chessman, coordinate);
 
-				expect(canRemove).to.equal(true);
+				expect(canRemove).equal(true);
 
 				expectCorrectGameStateAfterSingleAction(game, {
 					chessmanMap: new ChessmenMapTuner(initialChessmenArrangement).remove(coordinate).getMap(),
@@ -476,7 +476,7 @@ describe("domain", () => {
 
 				expect(() => {
 					game.history.goByHistoryIndex(index);
-				}).to.throw("Incorrect invariant for go by history index");
+				}).throw("Incorrect invariant for go by history index");
 			});
 		});
 
@@ -515,7 +515,7 @@ describe("domain", () => {
 			it(`current history index can't be '${index}' on new game`, () => {
 				const game = Game.createOnEmptyBoardMode();
 
-				expect(game.history.isCurrentHistoryIndex(index)).to.equal(false);
+				expect(game.history.isCurrentHistoryIndex(index)).equal(false);
 			});
 
 			it(`current history index can't be '${index}' after first action & going back`, () => {
@@ -524,7 +524,7 @@ describe("domain", () => {
 				game.moveChessman("white-pawn", "e2", "e4");
 				game.history.goBack();
 
-				expect(game.history.isCurrentHistoryIndex(index)).to.equal(false);
+				expect(game.history.isCurrentHistoryIndex(index)).equal(false);
 			});
 		});
 	});

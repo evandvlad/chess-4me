@@ -1,6 +1,7 @@
 import type { ChessmenMap } from "../app-values";
 
-import { app } from "../app-components";
+import { assertChessmenMapsAreEquals, assertOptionalValueBox } from "../helpers/asserts";
+import { game, board, controls, history, sidebarTabs, chessmenDiff } from "../app-components";
 import { initialChessmenArrangement } from "../app-values";
 
 describe("complex cases", () => {
@@ -9,66 +10,66 @@ describe("complex cases", () => {
 	});
 
 	it("playing full game", () => {
-		app.moveChessman("white-pawn", "e2", "e4");
-		app.moveChessman("black-pawn", "b7", "b6");
-		app.moveChessman("white-pawn", "d2", "d4");
-		app.moveChessman("black-bishop", "c8", "b7");
-		app.moveChessman("white-knight", "b1", "c3");
-		app.moveChessman("black-pawn", "e7", "e6");
-		app.moveChessman("white-pawn", "d4", "d5");
-		app.moveChessman("black-knight", "g8", "e7");
-		app.moveChessman("white-pawn", "d5", "e6");
-		app.moveChessman("black-pawn", "f7", "e6");
-		app.moveChessman("white-bishop", "c1", "g5");
-		app.moveChessman("black-knight", "b8", "c6");
-		app.moveChessman("white-knight", "g1", "f3");
-		app.moveChessman("black-pawn", "h7", "h6");
-		app.moveChessman("white-bishop", "g5", "h4");
-		app.moveChessman("black-pawn", "g7", "g5");
-		app.moveChessman("white-bishop", "h4", "g3");
-		app.moveChessman("black-pawn", "a7", "a6");
-		app.moveChessman("white-knight", "f3", "e5");
-		app.moveChessman("black-pawn", "h6", "h5");
-		app.moveChessman("white-knight", "e5", "c6");
-		app.moveChessman("black-bishop", "b7", "c6");
-		app.moveChessman("white-bishop", "f1", "e2");
-		app.moveChessman("black-rook", "h8", "g8");
-		app.moveChessman("white-bishop", "e2", "h5");
-		app.moveChessman("black-knight", "e7", "g6");
-		app.moveChessman("white-queen", "d1", "d3");
-		app.moveChessman("black-bishop", "c6", "b5");
-		app.moveChessman("white-knight", "c3", "b5");
-		app.moveChessman("black-pawn", "a6", "b5");
-		app.moveChessman("white-pawn", "e4", "e5");
-		app.moveChessman("black-king", "e8", "f7");
-		app.moveChessman("white-pawn", "f2", "f4");
-		app.moveChessman("black-pawn", "g5", "f4");
-		app.moveChessman("white-rook", "h1", "f1");
-		app.moveChessman("white-king", "e1", "g1");
-		app.moveChessman("black-bishop", "f8", "h6");
-		app.moveChessman("white-bishop", "g3", "f4");
-		app.moveChessman("black-bishop", "h6", "f4");
-		app.moveChessman("white-rook", "f1", "f4");
-		app.moveChessman("black-king", "f7", "e7");
-		app.moveChessman("white-bishop", "h5", "g6");
-		app.moveChessman("black-rook", "g8", "f8");
-		app.moveChessman("white-queen", "d3", "d4");
-		app.moveChessman("black-rook", "a8", "a4");
-		app.moveChessman("white-pawn", "b2", "b4");
-		app.moveChessman("black-rook", "a4", "a8");
-		app.moveChessman("white-rook", "a1", "f1");
-		app.moveChessman("black-rook", "a8", "a2");
-		app.moveChessman("white-rook", "f4", "f7");
-		app.moveChessman("black-rook", "f8", "f7");
-		app.moveChessman("white-rook", "f1", "f7");
-		app.moveChessman("black-king", "e7", "e8");
-		app.moveChessman("white-rook", "f7", "d7");
-		app.moveChessman("black-king", "e8", "f8");
-		app.moveChessman("white-queen", "d4", "f4");
-		app.moveChessman("black-king", "f8", "g8");
-		app.moveChessman("white-queen", "f4", "f7");
-		app.moveChessman("black-king", "g8", "h8");
-		app.moveChessman("white-queen", "f7", "h7");
+		game.moveChessman("white-pawn", "e2", "e4");
+		game.moveChessman("black-pawn", "b7", "b6");
+		game.moveChessman("white-pawn", "d2", "d4");
+		game.moveChessman("black-bishop", "c8", "b7");
+		game.moveChessman("white-knight", "b1", "c3");
+		game.moveChessman("black-pawn", "e7", "e6");
+		game.moveChessman("white-pawn", "d4", "d5");
+		game.moveChessman("black-knight", "g8", "e7");
+		game.moveChessman("white-pawn", "d5", "e6");
+		game.moveChessman("black-pawn", "f7", "e6");
+		game.moveChessman("white-bishop", "c1", "g5");
+		game.moveChessman("black-knight", "b8", "c6");
+		game.moveChessman("white-knight", "g1", "f3");
+		game.moveChessman("black-pawn", "h7", "h6");
+		game.moveChessman("white-bishop", "g5", "h4");
+		game.moveChessman("black-pawn", "g7", "g5");
+		game.moveChessman("white-bishop", "h4", "g3");
+		game.moveChessman("black-pawn", "a7", "a6");
+		game.moveChessman("white-knight", "f3", "e5");
+		game.moveChessman("black-pawn", "h6", "h5");
+		game.moveChessman("white-knight", "e5", "c6");
+		game.moveChessman("black-bishop", "b7", "c6");
+		game.moveChessman("white-bishop", "f1", "e2");
+		game.moveChessman("black-rook", "h8", "g8");
+		game.moveChessman("white-bishop", "e2", "h5");
+		game.moveChessman("black-knight", "e7", "g6");
+		game.moveChessman("white-queen", "d1", "d3");
+		game.moveChessman("black-bishop", "c6", "b5");
+		game.moveChessman("white-knight", "c3", "b5");
+		game.moveChessman("black-pawn", "a6", "b5");
+		game.moveChessman("white-pawn", "e4", "e5");
+		game.moveChessman("black-king", "e8", "f7");
+		game.moveChessman("white-pawn", "f2", "f4");
+		game.moveChessman("black-pawn", "g5", "f4");
+		game.moveChessman("white-rook", "h1", "f1");
+		game.moveChessman("white-king", "e1", "g1");
+		game.moveChessman("black-bishop", "f8", "h6");
+		game.moveChessman("white-bishop", "g3", "f4");
+		game.moveChessman("black-bishop", "h6", "f4");
+		game.moveChessman("white-rook", "f1", "f4");
+		game.moveChessman("black-king", "f7", "e7");
+		game.moveChessman("white-bishop", "h5", "g6");
+		game.moveChessman("black-rook", "g8", "f8");
+		game.moveChessman("white-queen", "d3", "d4");
+		game.moveChessman("black-rook", "a8", "a4");
+		game.moveChessman("white-pawn", "b2", "b4");
+		game.moveChessman("black-rook", "a4", "a8");
+		game.moveChessman("white-rook", "a1", "f1");
+		game.moveChessman("black-rook", "a8", "a2");
+		game.moveChessman("white-rook", "f4", "f7");
+		game.moveChessman("black-rook", "f8", "f7");
+		game.moveChessman("white-rook", "f1", "f7");
+		game.moveChessman("black-king", "e7", "e8");
+		game.moveChessman("white-rook", "f7", "d7");
+		game.moveChessman("black-king", "e8", "f8");
+		game.moveChessman("white-queen", "d4", "f4");
+		game.moveChessman("black-king", "f8", "g8");
+		game.moveChessman("white-queen", "f4", "f7");
+		game.moveChessman("black-king", "g8", "h8");
+		game.moveChessman("white-queen", "f7", "h7");
 	});
 
 	it("set custom position", () => {
@@ -90,180 +91,191 @@ describe("complex cases", () => {
 			["h6", "black-pawn"],
 		]);
 
-		app.newGameOnEmptyBoardMode();
+		controls.performAction("empty-board");
 
 		chessmenMap.forEach((chessman, coordinate) => {
-			app.addChessman(chessman, coordinate);
+			game.addChessman(chessman, coordinate);
 		});
 
-		app.assertChessmenArrangement(chessmenMap);
+		board.getChessmenMap().should(assertChessmenMapsAreEquals(chessmenMap));
 	});
 
 	it("playing with going back & forward", () => {
-		app.moveChessman("white-pawn", "d2", "d4");
+		game.moveChessman("white-pawn", "d2", "d4");
 
-		app.newGameOnRegularMode();
-		app.flipBoard();
+		controls.performAction("new-game");
+		controls.performAction("flip-board");
 
-		app.moveChessman("white-pawn", "e2", "e4");
-		app.moveChessman("black-pawn", "e7", "e5");
-		app.moveChessman("white-knight", "g1", "f3");
+		game.moveChessman("white-pawn", "e2", "e4");
+		game.moveChessman("black-pawn", "e7", "e5");
+		game.moveChessman("white-knight", "g1", "f3");
 
-		app.goBack();
-		app.goBack();
-		app.goBack();
+		controls.performAction("go-back");
+		controls.performAction("go-back");
+		controls.performAction("go-back");
 
-		app.assertChessmenArrangement(initialChessmenArrangement);
+		board.getChessmenMap().should(assertChessmenMapsAreEquals(initialChessmenArrangement));
 
-		app.goForward();
-		app.goForward();
-		app.goForward();
+		controls.performAction("go-forward");
+		controls.performAction("go-forward");
+		controls.performAction("go-forward");
 
-		app.moveChessman("black-knight", "b8", "c6");
-		app.moveChessman("white-bishop", "f1", "c4");
-		app.moveChessman("black-bishop", "f8", "b4");
+		game.moveChessman("black-knight", "b8", "c6");
+		game.moveChessman("white-bishop", "f1", "c4");
+		game.moveChessman("black-bishop", "f8", "b4");
 
-		app.goBack();
-		app.moveChessman("black-bishop", "f8", "c5");
-		app.moveChessman("white-rook", "h1", "f1");
-		app.moveChessman("white-king", "e1", "g1");
-		app.moveChessman("black-pawn", "d7", "d6");
-		app.moveChessman("white-pawn", "d2", "d4");
+		controls.performAction("go-back");
 
-		app.goBack();
-		app.goBack();
-		app.goBack();
-		app.goForward();
-		app.moveChessman("black-knight", "g8", "f6");
-		app.moveChessman("white-knight", "b1", "c3");
-		app.moveChessman("black-rook", "h8", "f8");
-		app.moveChessman("black-king", "e8", "g8");
-		app.moveChessman("white-pawn", "d2", "d3");
-		app.moveChessman("black-pawn", "h7", "h6");
+		game.moveChessman("black-bishop", "f8", "c5");
+		game.moveChessman("white-rook", "h1", "f1");
+		game.moveChessman("white-king", "e1", "g1");
+		game.moveChessman("black-pawn", "d7", "d6");
+		game.moveChessman("white-pawn", "d2", "d4");
+
+		controls.performAction("go-back");
+		controls.performAction("go-back");
+		controls.performAction("go-back");
+		controls.performAction("go-forward");
+
+		game.moveChessman("black-knight", "g8", "f6");
+		game.moveChessman("white-knight", "b1", "c3");
+		game.moveChessman("black-rook", "h8", "f8");
+		game.moveChessman("black-king", "e8", "g8");
+		game.moveChessman("white-pawn", "d2", "d3");
+		game.moveChessman("black-pawn", "h7", "h6");
 	});
 
 	it("different actions & history items", () => {
-		app.moveChessman("white-pawn", "e2", "e4");
-		app.moveChessman("black-pawn", "e7", "e5");
-		app.moveChessman("white-knight", "g1", "f3");
+		game.moveChessman("white-pawn", "e2", "e4");
+		game.moveChessman("black-pawn", "e7", "e5");
+		game.moveChessman("white-knight", "g1", "f3");
 
-		app.goByHistoryIndex(0);
+		history.selectByIndex(0);
 
-		app.moveChessman("black-pawn", "d7", "d5");
-		app.moveChessman("white-pawn", "d2", "d4");
-		app.moveChessman("black-pawn", "d5", "e4");
+		game.moveChessman("black-pawn", "d7", "d5");
+		game.moveChessman("white-pawn", "d2", "d4");
+		game.moveChessman("black-pawn", "d5", "e4");
 
-		app.goByHistoryIndex(1);
+		history.selectByIndex(1);
 
-		app.moveChessman("white-pawn", "e4", "d5");
-		app.moveChessman("black-queen", "d8", "d5");
-		app.moveChessman("white-pawn", "d2", "d4");
+		game.moveChessman("white-pawn", "e4", "d5");
+		game.moveChessman("black-queen", "d8", "d5");
+		game.moveChessman("white-pawn", "d2", "d4");
 
-		app.goByHistoryIndex(3);
+		history.selectByIndex(3);
 
-		app.removeChessman("white-pawn", "d2");
-		app.addChessman("white-pawn", "d4");
+		game.removeChessman("white-pawn", "d2");
+		game.addChessman("white-pawn", "d4");
 
-		app.goByHistoryIndex(0);
-		app.goBack();
+		history.selectByIndex(0);
+		controls.performAction("go-back");
 
-		app.assertChessmenArrangement(initialChessmenArrangement);
+		board.getChessmenMap().should(assertChessmenMapsAreEquals(initialChessmenArrangement));
 
-		app.goByHistoryIndex(5);
+		history.selectByIndex(5);
 
-		app.assertHistory(
-			[
+		history
+			.getItems()
+			.should("eql", [
 				"adding:white-pawn:d4",
 				"removing:white-pawn:d2",
 				"moving:black-queen:d8xd5",
 				"moving:white-pawn:e4xd5",
 				"moving:black-pawn:d7-d5",
 				"moving:white-pawn:e2-e4",
-			],
-			5,
-		);
+			]);
+
+		history.getCurrentItemIndex().should(assertOptionalValueBox<number>(5));
 	});
 
 	it("chessmen diff", () => {
-		app.goToTabOnSidebar("diff");
-		app.newGameOnEmptyBoardMode("diff");
+		sidebarTabs.goToTab("diff");
+		controls.performAction("empty-board");
 
-		app.addChessman("white-pawn", "a2");
-		app.addChessman("white-rook", "a1");
+		game.addChessman("white-pawn", "a2");
+		game.addChessman("white-rook", "a1");
 
-		app.assertChessmenDiff(["white-rook:1", "white-pawn:1"]);
+		chessmenDiff.getItems().should("eql", ["white-rook:1", "white-pawn:1"]);
 
-		app.addChessman("white-pawn", "b2");
-		app.addChessman("white-knight", "b1");
-		app.addChessman("white-pawn", "c2");
+		game.addChessman("white-pawn", "b2");
+		game.addChessman("white-knight", "b1");
+		game.addChessman("white-pawn", "c2");
 
-		app.assertChessmenDiff(["white-rook:1", "white-knight:1", "white-pawn:3"]);
+		chessmenDiff.getItems().should("eql", ["white-rook:1", "white-knight:1", "white-pawn:3"]);
 
-		app.addChessman("black-pawn", "a7");
-		app.addChessman("black-pawn", "b7");
+		game.addChessman("black-pawn", "a7");
+		game.addChessman("black-pawn", "b7");
 
-		app.assertChessmenDiff(["white-rook:1", "white-knight:1", "white-pawn:1"]);
+		chessmenDiff.getItems().should("eql", ["white-rook:1", "white-knight:1", "white-pawn:1"]);
 
-		app.addChessman("black-pawn", "c7");
-		app.addChessman("black-knight", "b8");
-		app.addChessman("black-bishop", "c8");
+		game.addChessman("black-pawn", "c7");
+		game.addChessman("black-knight", "b8");
+		game.addChessman("black-bishop", "c8");
 
-		app.assertChessmenDiff(["white-rook:1", "black-bishop:1"]);
+		chessmenDiff.getItems().should("eql", ["white-rook:1", "black-bishop:1"]);
 
-		app.addChessman("white-bishop", "c1");
-		app.addChessman("white-queen", "d1");
-		app.addChessman("white-king", "e1");
-		app.addChessman("white-bishop", "f1");
+		game.addChessman("white-bishop", "c1");
+		game.addChessman("white-queen", "d1");
+		game.addChessman("white-king", "e1");
+		game.addChessman("white-bishop", "f1");
 
-		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1"]);
+		chessmenDiff.getItems().should("eql", ["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1"]);
 
-		app.addChessman("black-pawn", "d7");
-		app.addChessman("black-pawn", "e7");
-		app.addChessman("black-pawn", "f7");
-		app.addChessman("black-pawn", "g7");
-		app.addChessman("black-pawn", "h7");
+		game.addChessman("black-pawn", "d7");
+		game.addChessman("black-pawn", "e7");
+		game.addChessman("black-pawn", "f7");
+		game.addChessman("black-pawn", "g7");
+		game.addChessman("black-pawn", "h7");
 
-		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1", "black-pawn:5"]);
+		chessmenDiff
+			.getItems()
+			.should("eql", ["white-king:1", "white-queen:1", "white-rook:1", "white-bishop:1", "black-pawn:5"]);
 
-		app.addChessman("black-rook", "a8");
-		app.addChessman("black-rook", "h8");
-		app.addChessman("white-pawn", "d2");
-		app.addChessman("white-pawn", "e2");
-		app.addChessman("white-pawn", "f2");
+		game.addChessman("black-rook", "a8");
+		game.addChessman("black-rook", "h8");
+		game.addChessman("white-pawn", "d2");
+		game.addChessman("white-pawn", "e2");
+		game.addChessman("white-pawn", "f2");
 
-		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:2"]);
+		chessmenDiff
+			.getItems()
+			.should("eql", ["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:2"]);
 
-		app.addChessman("black-knight", "g8");
-		app.addChessman("black-bishop", "f8");
-		app.addChessman("black-king", "e8");
-		app.addChessman("black-queen", "d8");
+		game.addChessman("black-knight", "g8");
+		game.addChessman("black-bishop", "f8");
+		game.addChessman("black-king", "e8");
+		game.addChessman("black-queen", "d8");
 
-		app.assertChessmenDiff(["black-rook:1", "black-knight:1", "black-pawn:2"]);
+		chessmenDiff.getItems().should("eql", ["black-rook:1", "black-knight:1", "black-pawn:2"]);
 
-		app.addChessman("white-knight", "g1");
-		app.addChessman("white-rook", "h1");
-		app.addChessman("white-pawn", "g2");
-		app.addChessman("white-pawn", "h2");
+		game.addChessman("white-knight", "g1");
+		game.addChessman("white-rook", "h1");
+		game.addChessman("white-pawn", "g2");
+		game.addChessman("white-pawn", "h2");
 
-		app.assertChessmenDiff([]);
+		chessmenDiff.getItems().should("eql", []);
 
-		app.goBack();
-		app.goBack();
+		controls.performAction("go-back");
+		controls.performAction("go-back");
 
-		app.assertChessmenDiff(["black-pawn:2"]);
+		chessmenDiff.getItems().should("eql", ["black-pawn:2"]);
 
-		app.goForward();
-		app.goForward();
+		controls.performAction("go-forward");
+		controls.performAction("go-forward");
 
-		app.assertChessmenDiff([]);
+		chessmenDiff.getItems().should("eql", []);
 
-		app.goToTabOnSidebar("history");
-		app.goByHistoryIndex(22);
-		app.goToTabOnSidebar("diff");
+		sidebarTabs.goToTab("history");
 
-		app.assertChessmenDiff(["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:3"]);
+		history.selectByIndex(22);
 
-		app.newGameOnRegularMode("diff");
-		app.assertChessmenDiff([]);
+		sidebarTabs.goToTab("diff");
+
+		chessmenDiff
+			.getItems()
+			.should("eql", ["white-king:1", "white-queen:1", "white-bishop:1", "black-rook:1", "black-pawn:3"]);
+
+		controls.performAction("new-game");
+		chessmenDiff.getItems().should("eql", []);
 	});
 });

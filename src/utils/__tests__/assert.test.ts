@@ -4,12 +4,12 @@ describe("utils/assert", () => {
 	it("value is satisfied assertion", () => {
 		expect(() => {
 			assert(true);
-		}).not.to.throw();
+		}).not.throw();
 	});
 
 	it("value isn't satisfied assertion", () => {
 		expect(() => {
 			assert(false);
-		}).to.throw("Assertion Error");
+		}).throw("Assertion Error");
 	});
 });

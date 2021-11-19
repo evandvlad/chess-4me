@@ -25,7 +25,7 @@
 		}
 	},
 	"rules": {
-		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"indent": ["error", "tab", { "SwitchCase": 1, "ignoredNodes": ["PropertyDefinition"] }],
 		"react/button-has-type": "error",
 		"react/no-array-index-key": "error",
 		"cypress/no-pause": "error"

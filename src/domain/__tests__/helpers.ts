@@ -120,16 +120,13 @@ export class HistoryItemsTuner {
 
 export function expectCorrectBoardState(game: Game, boardState: Game["boardState"]) {
 	boardCoordinates.forEach((coordinate) => {
-		expect(game.boardState.chessmenMap.get(coordinate)).to.equal(
+		expect(game.boardState.chessmenMap.get(coordinate)).equal(
 			boardState.chessmenMap.get(coordinate),
 			`Assertion on check chessmenMap on "${coordinate}" coordinate`,
 		);
 	});
 
-	expect(game.boardState.activeCoordinate).to.equal(
-		boardState.activeCoordinate,
-		"Assertion on check activeCoordinate",
-	);
+	expect(game.boardState.activeCoordinate).equal(boardState.activeCoordinate, "Assertion on check activeCoordinate");
 }
 
 export function expectCorrectHistoryState(
@@ -141,18 +138,18 @@ export function expectCorrectHistoryState(
 		currentIndex: number | undefined;
 	},
 ) {
-	expect(game.history.canGoBack).to.equal(expectedParams.canGoBack, "Assertion on check canGoBack");
-	expect(game.history.canGoForward).to.equal(expectedParams.canGoForward, "Assertion on check canGoForward");
-	expect(game.history.items.length).to.equal(expectedParams.items.length, "Assertion on check history items length");
+	expect(game.history.canGoBack).equal(expectedParams.canGoBack, "Assertion on check canGoBack");
+	expect(game.history.canGoForward).equal(expectedParams.canGoForward, "Assertion on check canGoForward");
+	expect(game.history.items.length).equal(expectedParams.items.length, "Assertion on check history items length");
 
 	game.history.items.forEach((item, index) => {
-		expect(item).to.eql(expectedParams.items[index], "Assetion on check history item");
+		expect(item).eql(expectedParams.items[index], "Assetion on check history item");
 	});
 
 	if (typeof expectedParams.currentIndex === "undefined") {
-		expect(game.history.isCurrentHistoryIndex(0)).to.equal(false, "Assertion on check isCurrentHistoryIndex");
+		expect(game.history.isCurrentHistoryIndex(0)).equal(false, "Assertion on check isCurrentHistoryIndex");
 	} else {
-		expect(game.history.isCurrentHistoryIndex(expectedParams.currentIndex)).to.equal(
+		expect(game.history.isCurrentHistoryIndex(expectedParams.currentIndex)).equal(
 			true,
 			"Assertion on check isCurrentHistoryIndex",
 		);
@@ -161,7 +158,7 @@ export function expectCorrectHistoryState(
 
 export function expectCorrectChessmenDiffState(game: Game, expectedItems: ChessmenDiffItem[]) {
 	const currentItems = [...game.chessmenDiffDetails.values()].flat();
-	expect(currentItems).to.eql(expectedItems);
+	expect(currentItems).eql(expectedItems);
 }
 
 export function expectCorrectNewGameState(game: Game, mode: GameMode) {
