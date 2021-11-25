@@ -202,6 +202,7 @@ describe("domain", () => {
 
 			expectCorrectBoardState(game, {
 				activeCoordinate: "e4",
+				chessmanUnderCheck: "white-king",
 				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
 					.remove("d2", "e2", "f8", "e7")
 					.set("e4", "white-pawn")
@@ -253,6 +254,7 @@ describe("domain", () => {
 					.set(destinationCoordinate, chessman)
 					.getMap(),
 				activeCoordinate: destinationCoordinate,
+				chessmanUnderCheck: null,
 			});
 		});
 	});
@@ -311,6 +313,7 @@ describe("domain", () => {
 				expectCorrectBoardState(game, {
 					activeCoordinate: coordinate,
 					chessmenMap: new ChessmenMapTuner().set(coordinate, chessman).getMap(),
+					chessmanUnderCheck: null,
 				});
 			});
 		});
@@ -373,6 +376,7 @@ describe("domain", () => {
 			expectCorrectBoardState(game, {
 				activeCoordinate: null,
 				chessmenMap: initialChessmenArrangement,
+				chessmanUnderCheck: null,
 			});
 		});
 
@@ -394,6 +398,7 @@ describe("domain", () => {
 			expectCorrectBoardState(game, {
 				activeCoordinate: null,
 				chessmenMap: new Map(),
+				chessmanUnderCheck: null,
 			});
 		});
 
@@ -424,6 +429,7 @@ describe("domain", () => {
 
 			expectCorrectBoardState(game, {
 				activeCoordinate: "d5",
+				chessmanUnderCheck: null,
 				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
 					.remove("e2", "d2", "e7", "d7")
 					.set("d3", "white-pawn")
@@ -459,6 +465,7 @@ describe("domain", () => {
 
 			expectCorrectBoardState(game, {
 				activeCoordinate: "d3",
+				chessmanUnderCheck: null,
 				chessmenMap: new ChessmenMapTuner(initialChessmenArrangement)
 					.remove("e2", "e7", "d2")
 					.set("e4", "white-pawn")
@@ -507,6 +514,7 @@ describe("domain", () => {
 
 			expectCorrectBoardState(game, {
 				activeCoordinate: "e2",
+				chessmanUnderCheck: null,
 				chessmenMap: new ChessmenMapTuner().set("e2", chessman).getMap(),
 			});
 		});

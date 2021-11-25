@@ -289,6 +289,18 @@ describe("simple cases", () => {
 		chessmenDiff.getItems().should("eql", []);
 	});
 
+	it("check & defends", () => {
+		game.moveChessman("white-pawn", "e2", "e4");
+		game.moveChessman("black-pawn", "d7", "d6");
+		game.moveChessman("white-bishop", "f1", "b5");
+
+		board.hasChessmanAndUnderAttack("e8").should(assertOptionalValueBox<boolean>(true));
+
+		game.moveChessman("black-knight", "b8", "c6");
+
+		board.hasChessmanAndUnderAttack("e8").should(assertOptionalValueBox<boolean>(false));
+	});
+
 	describe("history", () => {
 		it("can go back after first move", () => {
 			game.moveChessman("white-pawn", "e2", "e4");

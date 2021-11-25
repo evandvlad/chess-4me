@@ -2,7 +2,7 @@
   "name": "chess-4me",
   "description": "Chess for me",
   "private": true,
-  "version": "4.1.0",
+  "version": "5.0.0",
   "author": "Andrey Evstigneev",
   "main": "main.js",
   "scripts": {

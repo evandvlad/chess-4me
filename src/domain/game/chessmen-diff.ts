@@ -2,7 +2,7 @@ import { makeObservable, observable, action, computed } from "mobx";
 
 import type { ChessmenMap, ChessmanColor, Chessman, ChessmanType } from "../chessmen";
 
-import { getChessmanInfo, chessmanColors, chessmanTypes, getChessmanByParams } from "../chessmen";
+import { getChessmanInfo, chessmanColors, chessmanTypes, getChessmanByInfo } from "../chessmen";
 
 export interface ChessmenDiffItem {
 	readonly chessman: Chessman;
@@ -71,7 +71,7 @@ export class ChessmenDiff {
 			const color = this.#diffValueCalculator.getColor(diffValue);
 
 			details.get(color)!.push({
-				chessman: getChessmanByParams(color, type),
+				chessman: getChessmanByInfo({ color, type }),
 				num: this.#diffValueCalculator.toNum(diffValue),
 			});
 		});

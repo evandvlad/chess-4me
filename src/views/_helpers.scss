@@ -12,3 +12,8 @@ $common-outline-block-color: colors.$brown-dark;
 		padding: 5px 0 0;
 	}
 }
+
+@mixin mask-image($image) {
+	-webkit-mask-image: $image;
+	mask-image: $image;
+}

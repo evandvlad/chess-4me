@@ -35,7 +35,7 @@ export class Game {
 	private constructor(chessmenMap: ChessmenMap = new Map()) {
 		makeObservable(this);
 
-		this.boardState = new BoardState(chessmenMap);
+		this.boardState = new BoardState({ chessmenMap, activeCoordinate: null, lastActionColor: null });
 
 		this.#history = new History({
 			boardState: this.boardState,
@@ -58,13 +58,14 @@ export class Game {
 
 		return chessmen.filter((chessman) => {
 			const { type } = getChessmanInfo(chessman);
+			const count = chessmenCountMap.get(chessman) ?? 0;
 
 			switch (type) {
 				case "pawn":
-					return (chessmenCountMap.get(chessman) ?? 0) < 8;
+					return count < 8;
 
 				case "king":
-					return !chessmenCountMap.get(chessman);
+					return count === 0;
 
 				default:
 					return true;
@@ -124,7 +125,11 @@ export class Game {
 
 		newChessmenMap.set(coordinate, chessman);
 
-		this.boardState = new BoardState(newChessmenMap, coordinate);
+		this.boardState = new BoardState({
+			chessmenMap: newChessmenMap,
+			activeCoordinate: coordinate,
+			lastActionColor: getChessmanInfo(chessman).color,
+		});
 
 		this.#handleBoardStateChanged({
 			type: "board-action",
@@ -151,7 +156,11 @@ export class Game {
 		newChessmenMap.delete(sourceCoordinate);
 		newChessmenMap.set(destinationCoordinate, chessman);
 
-		this.boardState = new BoardState(newChessmenMap, destinationCoordinate);
+		this.boardState = new BoardState({
+			chessmenMap: newChessmenMap,
+			activeCoordinate: destinationCoordinate,
+			lastActionColor: getChessmanInfo(chessman).color,
+		});
 
 		this.#handleBoardStateChanged({
 			type: "board-action",
@@ -173,7 +182,11 @@ export class Game {
 
 		newChessmenMap.delete(coordinate);
 
-		this.boardState = new BoardState(newChessmenMap, coordinate);
+		this.boardState = new BoardState({
+			chessmenMap: newChessmenMap,
+			activeCoordinate: coordinate,
+			lastActionColor: getChessmanInfo(chessman).color,
+		});
 
 		this.#handleBoardStateChanged({
 			type: "board-action",
@@ -196,8 +209,7 @@ export class Game {
 	}
 
 	#handleHistoryChanged = () => {
-		const { chessmenMap, activeCoordinate } = this.#history.currentBoardState;
-		this.boardState = new BoardState(chessmenMap, activeCoordinate);
+		this.boardState = this.#history.currentBoardState;
 		this.#handleBoardStateChanged({ type: "history-action" });
 	};
 

@@ -1,21 +1,38 @@
 import type { Coordinate } from "./board";
 
+const chessmanPartsSeparator = "-";
+
+export const chessmanColors = ["white", "black"] as const;
+export const chessmanTypes = ["king", "queen", "rook", "bishop", "knight", "pawn"] as const;
+
+export type ChessmanColor = typeof chessmanColors[number];
+
+export type ChessmanType = typeof chessmanTypes[number];
+
 interface ChessmanInfo {
 	readonly color: ChessmanColor;
 	readonly type: ChessmanType;
 }
 
-export type ChessmanColor = "white" | "black";
-export type ChessmanType = "pawn" | "knight" | "bishop" | "rook" | "queen" | "king";
-export type Chessman = `${ChessmanColor}-${ChessmanType}`;
+export type Chessman = `${ChessmanColor}${typeof chessmanPartsSeparator}${ChessmanType}`;
 export type ChessmenMap = ReadonlyMap<Coordinate, Chessman>;
 
-export const chessmanColors: ReadonlyArray<ChessmanColor> = ["white", "black"];
-export const chessmanTypes: ReadonlyArray<ChessmanType> = ["king", "queen", "rook", "bishop", "knight", "pawn"];
-
 export const chessmen: ReadonlyArray<Chessman> = chessmanTypes.flatMap((type) =>
-	chessmanColors.map<Chessman>((color) => getChessmanByParams(color, type)),
+	chessmanColors.map<Chessman>((color) => getChessmanByInfo({ color, type })),
 );
+
+export function getChessmanInfo(chessman: Chessman): Readonly<ChessmanInfo> {
+	const [color, type] = chessman.split(chessmanPartsSeparator) as [ChessmanColor, ChessmanType];
+	return { color, type };
+}
+
+export function getChessmanByInfo({ color, type }: ChessmanInfo): Chessman {
+	return `${color}${chessmanPartsSeparator}${type}`;
+}
+
+export function getOtherChessmanColor(color: ChessmanColor): ChessmanColor {
+	return chessmanColors.filter((chessmanColor) => chessmanColor !== color)[0]!;
+}
 
 export const chessmenArrangement: ChessmenMap = new Map([
 	["a2", "white-pawn"],
@@ -51,12 +68,3 @@ export const chessmenArrangement: ChessmenMap = new Map([
 	["g8", "black-knight"],
 	["h8", "black-rook"],
 ]);
-
-export function getChessmanInfo(chessman: Chessman): Readonly<ChessmanInfo> {
-	const [color, type] = chessman.split("-") as [ChessmanColor, ChessmanType];
-	return { color, type };
-}
-
-export function getChessmanByParams(color: ChessmanColor, type: ChessmanType): Chessman {
-	return `${color}-${type}`;
-}

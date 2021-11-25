@@ -50,7 +50,15 @@ export class Board {
 
 	getChessman(coordinate: BoardCoordinate) {
 		const selector = `${this.#selector} [${this.#cellAttributeName}="${coordinate}"]`;
-		return this.#chessmenComponent.get(selector).then((chessmen) => optionalValueBox(chessmen[0] ?? null));
+		return this.#chessmenComponent.getAll(selector).then((chessmen) => optionalValueBox(chessmen[0] ?? null));
+	}
+
+	hasChessmanAndUnderAttack(coordinate: BoardCoordinate) {
+		const selector = `${this.#selector} [${this.#cellAttributeName}="${coordinate}"]`;
+
+		return this.#chessmenComponent
+			.getUnderAttacks(selector)
+			.then((chessmen) => optionalValueBox(chessmen.length === 1));
 	}
 
 	getChessmenMap() {

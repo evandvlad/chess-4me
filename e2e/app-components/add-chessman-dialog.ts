@@ -18,6 +18,6 @@ export class AddChessmanDialog {
 	}
 
 	getChessmen() {
-		return this.#chessmenComponent.get(this.#selector);
+		return this.#chessmenComponent.getAll(this.#selector);
 	}
 }

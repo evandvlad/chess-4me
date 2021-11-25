@@ -127,6 +127,11 @@ export function expectCorrectBoardState(game: Game, boardState: Game["boardState
 	});
 
 	expect(game.boardState.activeCoordinate).equal(boardState.activeCoordinate, "Assertion on check activeCoordinate");
+
+	expect(game.boardState.chessmanUnderCheck).equal(
+		boardState.chessmanUnderCheck,
+		"Assertion on check chessmanUnderCheck",
+	);
 }
 
 export function expectCorrectHistoryState(
@@ -164,6 +169,7 @@ export function expectCorrectChessmenDiffState(game: Game, expectedItems: Chessm
 export function expectCorrectNewGameState(game: Game, mode: GameMode) {
 	expectCorrectBoardState(game, {
 		activeCoordinate: null,
+		chessmanUnderCheck: null,
 		chessmenMap: mode === "regular" ? initialChessmenArrangement : new Map(),
 	});
 
@@ -187,6 +193,7 @@ export function expectCorrectGameStateAfterSingleAction(
 ) {
 	expectCorrectBoardState(game, {
 		chessmenMap: expectedParams.chessmanMap,
+		chessmanUnderCheck: null,
 		activeCoordinate: expectedParams.activeCoordinate,
 	});
 

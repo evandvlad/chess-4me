@@ -7,15 +7,21 @@ import styles from "./chessman.module.scss";
 
 interface Props {
 	chessman: DomainChessman;
+	isUnderAttack?: boolean;
 	className?: string;
 }
 
-export function Chessman({ chessman, className }: Props) {
-	return (
-		<span
-			className={cssClassNames(styles.chessman, className)}
-			data-style-chessman={chessman}
-			data-test-chessman={chessman}
-		/>
-	);
+export function Chessman({ chessman, className, isUnderAttack = false }: Props) {
+	const classNames = cssClassNames(styles.chessman, { [styles.underAttack!]: isUnderAttack }, className);
+
+	const dataAttributes: Record<`data-${string}`, string> = {
+		"data-style-chessman": chessman,
+		"data-test-chessman": chessman,
+	};
+
+	if (isUnderAttack) {
+		dataAttributes["data-test-chessman-under-attack"] = chessman;
+	}
+
+	return <span className={classNames} {...dataAttributes} />;
 }

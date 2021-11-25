@@ -43,6 +43,11 @@ interface HistoryRecord {
 	readonly boardState: BoardState;
 }
 
+interface Parameters {
+	readonly boardState: BoardState;
+	readonly onChanged: () => void;
+}
+
 export class History implements HistoryClientAPI {
 	@observable.shallow private readonly records: HistoryRecord[] = [];
 
@@ -51,7 +56,7 @@ export class History implements HistoryClientAPI {
 	readonly #eventsHub = new EventsHub<{ changed: [] }>();
 	readonly #initialBoardState: BoardState;
 
-	constructor({ boardState, onChanged }: { boardState: BoardState; onChanged: () => void }) {
+	constructor({ boardState, onChanged }: Parameters) {
 		makeObservable(this);
 
 		this.#initialBoardState = boardState;

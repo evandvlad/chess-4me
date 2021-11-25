@@ -1,4 +1,5 @@
 @use "./helpers";
+@use "../colors";
 
 .chessman {
 	display: flex;
@@ -13,5 +14,9 @@
 		&[data-style-chessman="#{$chessman}"] {
 			background-image: url("./#{$chessman}.svg");
 		}
+	}
+
+	&.underAttack {
+		filter: drop-shadow(0 0 10px colors.$red);
 	}
 }

@@ -1,54 +1,16 @@
-import { makeObservable, observable, action, computed } from "mobx";
+import { makeObservable, observable, action } from "mobx";
 
-import type { BoardCoordinate, Chessman } from "~/domain";
-import type { GameManager } from "./game-manager";
+import type { BoardCoordinate } from "~/domain";
+import type { GameManager } from "../game-manager";
 
 import { boardCoordinates } from "~/domain";
-
-export interface Cell {
-	readonly coordinate: BoardCoordinate;
-	readonly isFocused: boolean;
-	readonly isSelected: boolean;
-	readonly chessman: Chessman | undefined;
-}
-
-class BoardCell implements Cell {
-	readonly coordinate: BoardCoordinate;
-
-	readonly #gameManager: GameManager;
-	readonly #board: Board;
-
-	constructor(gameManager: GameManager, board: Board, coordinate: BoardCoordinate) {
-		makeObservable(this);
-
-		this.#gameManager = gameManager;
-		this.#board = board;
-		this.coordinate = coordinate;
-	}
-
-	@computed
-	get isFocused() {
-		const { activeCoordinate } = this.#gameManager.currentGame.boardState;
-		return activeCoordinate === this.coordinate;
-	}
-
-	@computed
-	get isSelected() {
-		return this.#board.selectedCell === this.coordinate;
-	}
-
-	@computed
-	get chessman() {
-		const { chessmenMap } = this.#gameManager.currentGame.boardState;
-		return chessmenMap.get(this.coordinate);
-	}
-}
+import { BoardCell } from "./cell";
 
 export class Board {
 	@observable selectedCell: BoardCoordinate | null = null;
 	@observable isFlipped = false;
 
-	readonly cells: ReadonlyArray<Cell>;
+	readonly cells: ReadonlyArray<BoardCell>;
 	readonly #gameManager: GameManager;
 
 	constructor(gameManager: GameManager) {

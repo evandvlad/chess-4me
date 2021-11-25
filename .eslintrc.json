@@ -43,10 +43,11 @@
 				"plugin:@typescript-eslint/recommended-requiring-type-checking"
 			],
 			"rules": {
+				"no-constant-condition": ["error", { "checkLoops": false }],
 				"@typescript-eslint/no-non-null-assertion": "off",
+				"@typescript-eslint/no-unnecessary-condition": "off",
 				"@typescript-eslint/consistent-type-imports": "error",
 				"@typescript-eslint/no-confusing-void-expression": "error",
-				"@typescript-eslint/no-unnecessary-condition": "error",
 				"@typescript-eslint/switch-exhaustiveness-check": "error",
 				"@typescript-eslint/prefer-readonly": "error"
 			}
