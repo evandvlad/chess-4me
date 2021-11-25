@@ -1,20 +1,13 @@
 import type { ChessmenDiffItem } from "../app-values";
 
-import { createAttributeName, createSelector } from "../utils/attributes-and-selectors";
-
 export class ChessmenDiff {
-	readonly #selector = createSelector(createAttributeName("chessmen-diff"));
-	readonly #itemAttributeName = createAttributeName("chessmen-diff-item");
+	readonly #selector = "[data-test-chessmen-diff]";
+	readonly #itemAttributeName = "data-test-chessmen-diff-item";
+	readonly #itemSelector = `[${this.#itemAttributeName}]`;
 
-	assertItems(items: ChessmenDiffItem[]) {
-		this.#getItems().then((historyItems) => {
-			expect(historyItems).to.eql(items);
-		});
-	}
-
-	#getItems(): Cypress.Chainable<ChessmenDiffItem[]> {
+	getItems() {
 		return cy.get(this.#selector).then(($parent) => {
-			const items = $parent[0]!.querySelectorAll(createSelector(this.#itemAttributeName));
+			const items = $parent[0]!.querySelectorAll(this.#itemSelector);
 			return Array.from(items).map((item) => item.getAttribute(this.#itemAttributeName) as ChessmenDiffItem);
 		});
 	}

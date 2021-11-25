@@ -1,6 +1,6 @@
 import type { Coordinate } from "./board";
 
-export interface ChessmanInfo {
+interface ChessmanInfo {
 	readonly color: ChessmanColor;
 	readonly type: ChessmanType;
 }

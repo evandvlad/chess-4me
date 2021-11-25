@@ -1,24 +1,17 @@
-import type { BoardDirection, BoardCoordinate, Chessman, ChessmenMap } from "../app-values";
-import type { OptionalValueBox } from "../utils/optional-value-box";
-import type { PositionOnScreen } from "../utils/position-on-screen";
+import type { BoardDirection, BoardCoordinate, ChessmenMap } from "../app-values";
+import type { PositionOnScreen } from "../helpers/position-on-screen";
 import type { Chessmen } from "./chessmen";
 
-import {
-	createAttributeName,
-	createSelector,
-	joinSelectors,
-	extractAttributeValue,
-} from "../utils/attributes-and-selectors";
+import { optionalValueBox } from "../helpers/optional-value-box";
 import { boardCoordinates } from "../app-values";
 
 export class Board {
-	readonly #attributeName = createAttributeName("board");
-	readonly #cellAttributeName = createAttributeName("board-cell");
-	readonly #selectedCellAttributeName = createAttributeName("board-selected-cell");
+	readonly #attributeName = "data-test-board";
+	readonly #cellAttributeName = "data-test-board-cell";
+	readonly #selectedCellAttributeName = "data-test-board-selected-cell";
+	readonly #focusedCellAttributeName = "data-test-board-focused-cell";
 
-	readonly #selector = createSelector(this.#attributeName);
-	readonly #focusedCellSelector = createSelector(createAttributeName("board-focused-cell"));
-	readonly #selectedCellSelector = createSelector(this.#selectedCellAttributeName);
+	readonly #selector = `[${this.#attributeName}]`;
 
 	readonly #chessmenComponent: Chessmen;
 
@@ -26,73 +19,69 @@ export class Board {
 		this.#chessmenComponent = chessmen;
 	}
 
-	assertDirection(direction: BoardDirection) {
-		const selector = createSelector(this.#attributeName, direction);
-		cy.get(selector).should("have.attr", this.#attributeName, direction);
+	getDirection() {
+		return cy.get(this.#selector).then(($board) => $board[0]!.getAttribute(this.#attributeName) as BoardDirection);
 	}
 
-	assertFocusedCell(coordinate: BoardCoordinate | null) {
-		this.#assertActiveCell(this.#focusedCellSelector, coordinate);
+	getSelectedCell() {
+		return this.#getCells().then(($cells) => this.#findActiveCell($cells, this.#selectedCellAttributeName));
 	}
 
-	assertSelectedCell(coordinate: BoardCoordinate | null) {
-		this.#assertActiveCell(this.#selectedCellSelector, coordinate);
+	getFocusedCell() {
+		return this.#getCells().then(($cells) => this.#findActiveCell($cells, this.#focusedCellAttributeName));
 	}
 
-	getCellPositionOnScreen(coordinate: BoardCoordinate): Cypress.Chainable<PositionOnScreen> {
-		return this.#getCell(coordinate).then(($cell) => {
-			const { x, y } = $cell[0]!.getBoundingClientRect();
-			return { x, y };
+	getCellPositionsOnScreen(coordinates: BoardCoordinate[]) {
+		const map = new Map<BoardCoordinate, PositionOnScreen>();
+
+		coordinates.forEach((coordinate) => {
+			this.#getCell(coordinate).then(($cell) => {
+				const { x, y } = $cell[0]!.getBoundingClientRect();
+				map.set(coordinate, { x, y });
+			});
 		});
+
+		return cy.wrap(map);
 	}
 
 	selectCell(coordinate: BoardCoordinate) {
 		this.#getCell(coordinate).click();
 	}
 
-	getSelectedCell(): Cypress.Chainable<OptionalValueBox<BoardCoordinate>> {
-		return this.#getCells().then(($cells) => {
-			const selectedCell = [...$cells].find((cell) => cell.hasAttribute(this.#selectedCellAttributeName));
-			return extractAttributeValue<BoardCoordinate>(selectedCell, this.#cellAttributeName);
-		});
+	getChessman(coordinate: BoardCoordinate) {
+		const selector = `${this.#selector} [${this.#cellAttributeName}="${coordinate}"]`;
+		return this.#chessmenComponent.get(selector).then((chessmen) => optionalValueBox(chessmen[0] ?? null));
 	}
 
-	assertChessman(chessman: Chessman | undefined, coordinate: BoardCoordinate) {
-		const selector = joinSelectors(this.#selector, createSelector(this.#cellAttributeName, coordinate));
+	getChessmenMap() {
+		const map: ChessmenMap = new Map();
 
-		this.#chessmenComponent.get(selector).should("satisfy", (vals: Chessman[]) => {
-			if (chessman === undefined) {
-				return vals.length === 0;
-			}
-
-			return vals.length === 1 && vals[0] === chessman;
-		});
-	}
-
-	assertChessmenMap(chessmenMap: ChessmenMap) {
 		boardCoordinates.forEach((coordinate) => {
-			this.assertChessman(chessmenMap.get(coordinate), coordinate);
+			this.getChessman(coordinate).then(({ value }) => {
+				if (value) {
+					map.set(coordinate, value);
+				}
+			});
 		});
+
+		return cy.wrap(map);
 	}
 
-	#assertActiveCell(activeCellSelector: string, coordinate: BoardCoordinate | null) {
-		const selector = joinSelectors(this.#selector, activeCellSelector);
+	#findActiveCell($cells: JQuery<HTMLElement>, activeAttributeName: string) {
+		const activeCell = Array.from($cells).find((cell) => cell.hasAttribute(activeAttributeName));
 
-		if (coordinate === null) {
-			cy.get(selector).should("not.exist");
-			return;
-		}
-
-		cy.get(selector).should("have.attr", this.#cellAttributeName, coordinate);
+		return optionalValueBox(
+			activeCell ? (activeCell.getAttribute(this.#cellAttributeName) as BoardCoordinate) : null,
+		);
 	}
 
-	#getCell(coordinate: BoardCoordinate): Cypress.Chainable<JQuery> {
-		const selector = joinSelectors(this.#selector, createSelector(this.#cellAttributeName, coordinate));
+	#getCell(coordinate: BoardCoordinate) {
+		const selector = `${this.#selector} [${this.#cellAttributeName}="${coordinate}"]`;
 		return cy.get(selector);
 	}
 
-	#getCells(): Cypress.Chainable<JQuery> {
-		const selector = joinSelectors(this.#selector, createSelector(this.#cellAttributeName));
+	#getCells() {
+		const selector = `${this.#selector} [${this.#cellAttributeName}]`;
 		return cy.get(selector);
 	}
 }

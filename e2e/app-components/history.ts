@@ -1,42 +1,29 @@
-import type { HistoryItem, HistoryItemValue } from "../app-values";
+import type { HistoryItem } from "../app-values";
 
-import { createAttributeName, createSelector, joinSelectors } from "../utils/attributes-and-selectors";
+import { optionalValueBox } from "../helpers/optional-value-box";
 
 export class History {
-	readonly #selector = createSelector(createAttributeName("history"));
-	readonly #itemAttributeName = createAttributeName("history-item");
-	readonly #itemCurrentAttributeName = createAttributeName("history-item-current");
-	readonly #itemContentAttributeName = createAttributeName("history-item-content");
+	readonly #selector = "[data-test-history]";
+	readonly #itemCurrentSelector = "[data-test-history-item-current]";
+	readonly #itemAttributeName = "data-test-history-item";
+	readonly #itemContentAttributeName = "data-test-history-item-content";
 
-	assertItems(items: HistoryItem[]) {
-		this.#getItems().then((historyItems) => {
-			expect(historyItems).to.eql(items);
-		});
-	}
-
-	assertCurrentItemIndex(index: number | undefined) {
-		this.#getItems().then((items) => {
-			const currentItem = items.find(({ isCurrent }) => isCurrent) ?? { index: undefined };
-			expect(currentItem.index).to.equal(index);
+	getCurrentItemIndex() {
+		return cy.get(this.#selector).then(($history) => {
+			const current = $history[0]!.querySelector(this.#itemCurrentSelector);
+			return optionalValueBox(current ? Number(current.getAttribute(this.#itemAttributeName)) : null);
 		});
 	}
 
 	selectByIndex(index: number) {
-		const selector = joinSelectors(this.#selector, createSelector(this.#itemAttributeName, index.toString()));
+		const selector = `${this.#selector} [${this.#itemAttributeName}="${index}"]`;
 		cy.get(selector).click();
 	}
 
-	#getItems(): Cypress.Chainable<HistoryItem[]> {
+	getItems() {
 		return cy.get(this.#selector).then(($parent) => {
-			const items = $parent[0]!.querySelectorAll(createSelector(this.#itemAttributeName));
-
-			return Array.from(items).map((item) => ({
-				index: Number(item.getAttribute(this.#itemAttributeName)),
-				isCurrent: item.hasAttribute(this.#itemCurrentAttributeName),
-				value: item
-					.querySelector(createSelector(this.#itemContentAttributeName))!
-					.getAttribute(this.#itemContentAttributeName) as HistoryItemValue,
-			}));
+			const items = $parent[0]!.querySelectorAll(`[${this.#itemContentAttributeName}]`);
+			return Array.from(items).map((item) => item.getAttribute(this.#itemContentAttributeName) as HistoryItem);
 		});
 	}
 }

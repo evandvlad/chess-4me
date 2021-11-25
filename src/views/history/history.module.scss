@@ -18,11 +18,11 @@
 .item {
 	display: flex;
 	border-bottom: 1px dashed transparent;
-	opacity: 60%;
+	opacity: 0.6;
 
 	&.current {
 		border-bottom-color: colors.$black;
-		opacity: 100%;
+		opacity: 1;
 		cursor: default;
 	}
 

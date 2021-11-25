@@ -1,25 +1,23 @@
 import type { Chessman } from "../app-values";
 import type { Chessmen as ChessmenComponent } from "./chessmen";
 
-import { createAttributeName, createSelector } from "../utils/attributes-and-selectors";
-
 export class AddChessmanDialog {
-	readonly #selector = createSelector(createAttributeName("add-chessman-dialog"));
+	readonly #selector = "[data-test-add-chessman-dialog]";
 	readonly #chessmenComponent: ChessmenComponent;
 
 	constructor(chessmen: ChessmenComponent) {
 		this.#chessmenComponent = chessmen;
 	}
 
-	assertVisibility(isEnabled = true) {
-		cy.get(this.#selector).should(isEnabled ? "be.visible" : "not.exist");
+	isVisible() {
+		return cy.document().then((document) => document.querySelector(this.#selector) !== null);
 	}
 
 	select(chessman: Chessman) {
 		this.#chessmenComponent.select(this.#selector, chessman);
 	}
 
-	getChessmen(): Cypress.Chainable<Chessman[]> {
+	getChessmen() {
 		return this.#chessmenComponent.get(this.#selector);
 	}
 }
