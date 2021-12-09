@@ -1,11 +1,8 @@
 import { action, makeObservable, observable } from "mobx";
-
-import type { Coordinate } from "../board";
-import type { Chessman, ChessmenMap } from "../chessmen";
-import type { HistoryClientAPI, HistoryItem } from "./history";
-
+import { type Coordinate } from "../board";
+import { type Chessman, type ChessmenMap, getChessmanInfo, chessmenArrangement, chessmen } from "../chessmen";
+import { type HistoryClientAPI, type HistoryItem } from "./history";
 import { BoardState } from "./board-state";
-import { getChessmanInfo, chessmenArrangement, chessmen } from "../chessmen";
 import { assert } from "~/utils/assert";
 import { History } from "./history";
 import { ChessmenDiff } from "./chessmen-diff";
@@ -121,7 +118,7 @@ export class Game {
 		assert(this.#canAddChessman(chessman, coordinate), "Incorrect invariant for adding");
 
 		const { chessmenMap } = this.boardState;
-		const newChessmenMap = new Map(chessmenMap.entries());
+		const newChessmenMap = new Map(chessmenMap);
 
 		newChessmenMap.set(coordinate, chessman);
 
@@ -151,7 +148,7 @@ export class Game {
 		const { chessmenMap } = this.boardState;
 		const isCapture = chessmenMap.has(destinationCoordinate);
 
-		const newChessmenMap = new Map(chessmenMap.entries());
+		const newChessmenMap = new Map(chessmenMap);
 
 		newChessmenMap.delete(sourceCoordinate);
 		newChessmenMap.set(destinationCoordinate, chessman);
@@ -178,7 +175,8 @@ export class Game {
 	removeChessman(chessman: Chessman, coordinate: Coordinate) {
 		assert(this.canRemoveChessman(chessman, coordinate), "Incorrect invariant for removing");
 
-		const newChessmenMap = new Map(this.boardState.chessmenMap.entries());
+		const { chessmenMap } = this.boardState;
+		const newChessmenMap = new Map(chessmenMap);
 
 		newChessmenMap.delete(coordinate);
 
@@ -205,7 +203,7 @@ export class Game {
 			return false;
 		}
 
-		return this.availableChessmenForAdding.some((availableChessman) => availableChessman === chessman);
+		return this.availableChessmenForAdding.includes(chessman);
 	}
 
 	#handleHistoryChanged = () => {

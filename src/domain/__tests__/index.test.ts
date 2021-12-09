@@ -1,6 +1,4 @@
-import type { BoardCoordinate, Chessman } from "..";
-
-import { Game, boardCoordinates } from "..";
+import { type BoardCoordinate, type Chessman, Game, boardCoordinates } from "..";
 import {
 	initialChessmenArrangement,
 	ChessmenMapTuner,
@@ -33,7 +31,7 @@ describe("domain", () => {
 	describe("available chessmen for adding", () => {
 		function expectChessmanAvailabilityForAdding(game: Game, chessman: Chessman, isExpectedAsAvailable: boolean) {
 			const availableChessmen = game.availableChessmenForAdding;
-			const isAvailableForAdding = availableChessmen.some((availableChessman) => availableChessman === chessman);
+			const isAvailableForAdding = availableChessmen.includes(chessman);
 
 			expect(isAvailableForAdding).equal(isExpectedAsAvailable);
 		}

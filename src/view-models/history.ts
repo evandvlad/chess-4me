@@ -1,13 +1,12 @@
 import { makeObservable, computed, action } from "mobx";
-
-import type { HistoryItem as DomainHistoryItem } from "~/domain";
-import type { GameManager } from "./game-manager";
+import { type HistoryItem as DomainHistoryItem } from "~/domain";
+import { type GameManager } from "./game-manager";
 
 class HistoryItem {
 	constructor(readonly data: DomainHistoryItem, readonly index: number, readonly isCurrent: boolean) {}
 }
 
-export type { HistoryItem };
+export { type HistoryItem };
 
 export class History {
 	readonly #gameManager: GameManager;

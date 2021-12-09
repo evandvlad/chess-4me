@@ -1,11 +1,8 @@
 import React from "react";
-
-import type { BoardCoordinate } from "~/domain";
-import type { Cell as ViewModelCell } from "~/view-models";
-
+import { type BoardCoordinate } from "~/domain";
+import { type Cell as ViewModelCell } from "~/view-models";
 import { cssClassNames } from "~/utils/css-class-names";
 import { Chessman } from "../chessman";
-
 import styles from "./board.module.scss";
 
 interface Props extends ViewModelCell {

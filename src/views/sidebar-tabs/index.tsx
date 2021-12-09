@@ -1,9 +1,5 @@
-import React, { Children, useState } from "react";
-
-import type { ReactNode, ReactElement } from "react";
-
+import React, { type ReactNode, type ReactElement, Children, useState } from "react";
 import { NavItem } from "./nav-item";
-
 import styles from "./sidebar-tabs.module.scss";
 
 interface SidebarTabProps {

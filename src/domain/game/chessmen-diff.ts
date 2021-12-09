@@ -1,8 +1,14 @@
 import { makeObservable, observable, action, computed } from "mobx";
-
-import type { ChessmenMap, ChessmanColor, Chessman, ChessmanType } from "../chessmen";
-
-import { getChessmanInfo, chessmanColors, chessmanTypes, getChessmanByInfo } from "../chessmen";
+import {
+	type ChessmenMap,
+	type ChessmanColor,
+	type Chessman,
+	type ChessmanType,
+	getChessmanInfo,
+	chessmanColors,
+	chessmanTypes,
+	getChessmanByInfo,
+} from "../chessmen";
 
 export interface ChessmenDiffItem {
 	readonly chessman: Chessman;

@@ -1,5 +1,4 @@
 import React from "react";
-
 import styles from "./sidebar-tabs.module.scss";
 
 interface Props {

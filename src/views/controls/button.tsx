@@ -1,5 +1,4 @@
 import React from "react";
-
 import styles from "./controls.module.scss";
 
 interface Props {

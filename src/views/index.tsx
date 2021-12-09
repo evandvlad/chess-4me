@@ -1,14 +1,11 @@
 import React from "react";
 import { render } from "react-dom";
-
 import { App } from "~/view-models";
 import { Board } from "./board";
 import { Controls } from "./controls";
 import { History } from "./history";
 import { ChessmenDiff } from "./chessmen-diff";
-
 import { SidebarTabs, SidebarTab } from "./sidebar-tabs";
-
 import "./global.scss";
 import styles from "./layout.module.scss";
 

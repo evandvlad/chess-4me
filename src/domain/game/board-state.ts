@@ -1,7 +1,5 @@
-import type { Coordinate } from "../board";
-import type { ChessmenMap, ChessmanColor, Chessman } from "../chessmen";
-
-import { getChessmanByInfo } from "../chessmen";
+import { type Coordinate } from "../board";
+import { type ChessmenMap, type ChessmanColor, type Chessman, getChessmanByInfo } from "../chessmen";
 import { analyzeCheck } from "../check-analyzer";
 
 interface Parameters {

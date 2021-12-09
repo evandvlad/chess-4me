@@ -1,5 +1,4 @@
 import { makeObservable, observable, computed, action } from "mobx";
-
 import { Game } from "~/domain";
 
 export class GameManager {

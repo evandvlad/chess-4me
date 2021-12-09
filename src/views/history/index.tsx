@@ -1,10 +1,7 @@
 import React, { memo } from "react";
 import { observer } from "mobx-react-lite";
-
-import type { History as ViewModelHistory } from "~/view-models";
-
+import { type History as ViewModelHistory } from "~/view-models";
 import { Item } from "./item";
-
 import styles from "./history.module.scss";
 
 interface Props {

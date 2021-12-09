@@ -1,8 +1,7 @@
-import type { BoardCoordinate, Chessman } from "../app-values";
-
-import type { AddChessmanDialog } from "./add-chessman-dialog";
-import type { Board } from "./board";
-import type { Controls } from "./controls";
+import { type BoardCoordinate, type Chessman } from "../app-values";
+import { type AddChessmanDialog } from "./add-chessman-dialog";
+import { type Board } from "./board";
+import { type Controls } from "./controls";
 
 interface Parameters {
 	board: Board;

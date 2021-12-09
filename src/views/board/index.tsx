@@ -1,11 +1,8 @@
 import React, { useMemo } from "react";
 import { observer, Observer } from "mobx-react-lite";
-
-import type { Board as ViewModelBoard } from "~/view-models";
-
+import { type Board as ViewModelBoard } from "~/view-models";
 import { cssClassNames } from "~/utils/css-class-names";
 import { Cell } from "./cell";
-
 import styles from "./board.module.scss";
 
 export const Board = observer(function BoardObserver({ viewModel }: { viewModel: ViewModelBoard }) {

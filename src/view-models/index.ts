@@ -1,10 +1,7 @@
-import type { HistoryItem } from "./history";
-import type { Cell } from "./board";
-
+import { type HistoryItem, History } from "./history";
+import { type Cell, Board } from "./board";
 import { GameManager } from "./game-manager";
-import { Board } from "./board";
 import { Controls } from "./controls";
-import { History } from "./history";
 import { ChessmenDiff } from "./chessmen-diff";
 
 export class App {
@@ -23,4 +20,4 @@ export class App {
 	}
 }
 
-export type { Board, Cell, Controls, History, ChessmenDiff, HistoryItem };
+export { type Board, type Cell, type Controls, type History, type ChessmenDiff, type HistoryItem };

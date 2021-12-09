@@ -1,110 +1,86 @@
-import type { ChessmenMap, Chessman, ChessmanColor, ChessmanType } from "../chessmen";
-import type { Path } from "../board";
-import type { ScanDirection, ScanStep } from "./board-scanner";
+import {
+	type ChessmenMap,
+	type ChessmanColor,
+	type ChessmanType,
+	getOtherChessmanColor,
+	getChessmanByInfo,
+	getChessmanInfo,
+} from "../chessmen";
+import { type Path } from "../board";
+import { type ScanDirection, BoardScanner } from "./board-scanner";
+import { getChessmanAttackPathes, isUnderChessmanAttack } from "./chessman-attack";
+import { hasOnly } from "~/utils/set";
+import { uniq } from "~/utils/array";
 
-import { getOtherChessmanColor, getChessmanByInfo, getChessmanInfo, chessmanColors } from "../chessmen";
-import { Chessboard } from "./chessboard";
-import { BoardScanner } from "./board-scanner";
+function getEnemyChessmenTypes(chessmenMap: ChessmenMap, enemyColor: ChessmanColor) {
+	const result = new Set<ChessmanType>();
 
-const pawnAttackPaths: Record<ChessmanColor, ReadonlyArray<Path>> = {
-	white: ["-1/-1", "1/-1"],
-	black: ["-1/1", "1/1"],
-};
+	for (const chessman of chessmenMap.values()) {
+		const { color, type } = getChessmanInfo(chessman);
 
-const knightAttackPaths: ReadonlyArray<Path> = ["-2/-1", "-2/1", "-1/-2", "-1/2", "1/-2", "1/2", "2/-1", "2/1"];
-const bishopAttackPaths: ReadonlyArray<Path> = chessmanColors.flatMap((color) => pawnAttackPaths[color]);
-const rookAttackPaths: ReadonlyArray<Path> = ["-1/0", "0/-1", "0/1", "1/0"];
-const queenAttackPaths: ReadonlyArray<Path> = [...bishopAttackPaths, ...rookAttackPaths];
+		if (color === enemyColor) {
+			result.add(type);
+		}
+	}
+
+	return result;
+}
+
+function getOwnKingCoordinate(chessmenMap: ChessmenMap, ownColor: ChessmanColor) {
+	const king = getChessmanByInfo({ color: ownColor, type: "king" });
+
+	const kingCoordinates = Array.from(chessmenMap)
+		.filter(([, chessman]) => chessman === king)
+		.map(([coordinate]) => coordinate);
+
+	return kingCoordinates.length === 1 ? kingCoordinates[0]! : null;
+}
 
 function createScannerDirections(paths: ReadonlyArray<Path>, iterateOnce: boolean): ScanDirection[] {
 	return paths.map((path) => ({ path, iterateOnce }));
 }
 
-function collectScannerDirections(enemyColor: ChessmanColor, enemyChessmenTypes: ReadonlySet<ChessmanType>) {
-	const chessmenTypes = new Set(enemyChessmenTypes);
+function collectScannerDirections(chessmenMap: ChessmenMap, enemyColor: ChessmanColor) {
+	const enemyChessmenTypes = getEnemyChessmenTypes(chessmenMap, enemyColor);
 	const directions: ScanDirection[] = [];
 
-	chessmenTypes.delete("king");
+	enemyChessmenTypes.delete("king");
 
-	if (chessmenTypes.has("knight")) {
-		directions.push(...createScannerDirections(knightAttackPaths, true));
+	if (enemyChessmenTypes.has("knight")) {
+		directions.push(
+			...createScannerDirections(getChessmanAttackPathes({ type: "knight", color: enemyColor }), true),
+		);
 
-		if (chessmenTypes.size === 1) {
+		if (hasOnly(enemyChessmenTypes, "knight")) {
 			return directions;
 		}
 
-		chessmenTypes.delete("knight");
+		enemyChessmenTypes.delete("knight");
 	}
 
-	if (chessmenTypes.size === 1 && chessmenTypes.has("pawn")) {
-		directions.push(...createScannerDirections(pawnAttackPaths[enemyColor], true));
+	if (hasOnly(enemyChessmenTypes, "pawn")) {
+		directions.push(...createScannerDirections(getChessmanAttackPathes({ type: "pawn", color: enemyColor }), true));
 		return directions;
 	}
 
-	const restPaths = Array.from(chessmenTypes).flatMap((type) => {
-		switch (type) {
-			case "pawn":
-				return pawnAttackPaths[enemyColor];
+	const restPaths = uniq(
+		Array.from(enemyChessmenTypes).flatMap((type) => getChessmanAttackPathes({ type, color: enemyColor })),
+	);
 
-			case "bishop":
-				return bishopAttackPaths;
-
-			case "rook":
-				return rookAttackPaths;
-
-			case "queen":
-				return queenAttackPaths;
-
-			default:
-				return [];
-		}
-	});
-
-	directions.push(...createScannerDirections([...new Set(restPaths)], false));
+	directions.push(...createScannerDirections(restPaths, false));
 
 	return directions;
 }
 
-function hasCheckByChessman(scanStep: ScanStep, chessman: Chessman) {
-	const { type, color } = getChessmanInfo(chessman);
-	const { iterations } = scanStep;
-	const { path } = scanStep.direction;
+function inspect(chessmenMap: ChessmenMap, ownColor: ChessmanColor) {
+	const kingCoordinate = getOwnKingCoordinate(chessmenMap, ownColor);
 
-	switch (type) {
-		case "pawn":
-			return iterations === 1 && pawnAttackPaths[color].includes(path);
-
-		case "knight":
-			return iterations === 1 && knightAttackPaths.includes(path);
-
-		case "bishop":
-			return bishopAttackPaths.includes(path);
-
-		case "rook":
-			return rookAttackPaths.includes(path);
-
-		case "queen":
-			return queenAttackPaths.includes(path);
-
-		case "king":
-			return false;
-	}
-}
-
-function inspect(chessboard: Chessboard, ownColor: ChessmanColor) {
-	const king = getChessmanByInfo({ color: ownColor, type: "king" });
-	const kingCoordinates = chessboard.getCoordinatesOfChessman(king);
-
-	if (kingCoordinates.length !== 1) {
+	if (!kingCoordinate) {
 		return false;
 	}
 
-	const kingCoordinate = kingCoordinates[0]!;
-
 	const enemyColor = getOtherChessmanColor(ownColor);
-	const enemyChessmenTypes = chessboard.getChessmenTypesByColor(enemyColor);
-
-	const boardScanner = new BoardScanner(kingCoordinate, collectScannerDirections(enemyColor, enemyChessmenTypes));
+	const boardScanner = new BoardScanner(kingCoordinate, collectScannerDirections(chessmenMap, enemyColor));
 
 	while (true) {
 		const scanStep = boardScanner.next();
@@ -113,28 +89,32 @@ function inspect(chessboard: Chessboard, ownColor: ChessmanColor) {
 			return false;
 		}
 
-		const chessman = chessboard.getChessmanByCoordinate(scanStep.coordinate);
+		const chessman = chessmenMap.get(scanStep.coordinate);
 
-		if (chessman) {
-			const { color } = getChessmanInfo(chessman);
+		if (!chessman) {
+			continue;
+		}
 
-			if (color === enemyColor && hasCheckByChessman(scanStep, chessman)) {
-				return true;
-			}
+		const chessmanInfo = getChessmanInfo(chessman);
 
-			if (color === ownColor) {
-				boardScanner.stopScanPath(scanStep.direction.path);
-			}
+		if (
+			chessmanInfo.color === enemyColor &&
+			isUnderChessmanAttack(chessmanInfo, scanStep.direction.path, scanStep.iterations)
+		) {
+			return true;
+		}
+
+		if (chessmanInfo.color === ownColor) {
+			boardScanner.stopScanPath(scanStep.direction.path);
 		}
 	}
 }
 
 export function analyzeCheck(chessmenMap: ChessmenMap, lastActionChessmanColor: ChessmanColor): ChessmanColor | null {
-	const chessboard = new Chessboard(chessmenMap);
 	const colorsFotAnalysis = [lastActionChessmanColor, getOtherChessmanColor(lastActionChessmanColor)];
 
 	for (const color of colorsFotAnalysis) {
-		const hasCheck = inspect(chessboard, color);
+		const hasCheck = inspect(chessmenMap, color);
 
 		if (hasCheck) {
 			return color;

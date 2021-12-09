@@ -1,11 +1,10 @@
 import { makeObservable, computed, observable, action } from "mobx";
-
-import type { Coordinate } from "../board";
-import type { Chessman } from "../chessmen";
-import type { BoardState } from "./board-state";
-
+import { type Coordinate } from "../board";
+import { type Chessman } from "../chessmen";
+import { type BoardState } from "./board-state";
 import { assert } from "~/utils/assert";
 import { EventsHub } from "~/utils/events-hub";
+import { hasIndex } from "~/utils/array";
 
 const initialStateCursorPosition = -1;
 
@@ -101,7 +100,8 @@ export class History implements HistoryClientAPI {
 
 	@action
 	goByHistoryIndex(index: number) {
-		assert(typeof this.records[index] !== "undefined", "Incorrect invariant for go by history index");
+		assert(hasIndex(this.records, index), "Incorrect invariant for go by history index");
+
 		this.cursorPosition = index;
 		this.#eventsHub.trigger("changed");
 	}

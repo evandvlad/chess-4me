@@ -1,8 +1,6 @@
 import React from "react";
-
-import type { Chessman as DomainChessman } from "~/domain";
+import { type Chessman as DomainChessman } from "~/domain";
 import { cssClassNames } from "~/utils/css-class-names";
-
 import styles from "./chessman.module.scss";
 
 interface Props {

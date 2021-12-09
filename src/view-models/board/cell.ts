@@ -1,8 +1,7 @@
 import { makeObservable, computed, comparer } from "mobx";
-
-import type { BoardCoordinate, Chessman as DomainChessman } from "~/domain";
-import type { GameManager } from "../game-manager";
-import type { Board } from "./board";
+import { type BoardCoordinate, type Chessman as DomainChessman } from "~/domain";
+import { type GameManager } from "../game-manager";
+import { type Board } from "./board";
 
 interface Chessman {
 	readonly value: DomainChessman;

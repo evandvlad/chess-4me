@@ -1,5 +1,5 @@
-import type { Chessman } from "../app-values";
-import type { Chessmen as ChessmenComponent } from "./chessmen";
+import { type Chessman } from "../app-values";
+import { type Chessmen as ChessmenComponent } from "./chessmen";
 
 export class AddChessmanDialog {
 	readonly #selector = "[data-test-add-chessman-dialog]";

@@ -1,4 +1,4 @@
-import type { Coordinate } from "./board";
+import { type Coordinate } from "./board";
 
 const chessmanPartsSeparator = "-";
 
@@ -9,7 +9,7 @@ export type ChessmanColor = typeof chessmanColors[number];
 
 export type ChessmanType = typeof chessmanTypes[number];
 
-interface ChessmanInfo {
+export interface ChessmanInfo {
 	readonly color: ChessmanColor;
 	readonly type: ChessmanType;
 }

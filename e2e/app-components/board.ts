@@ -1,9 +1,7 @@
-import type { BoardDirection, BoardCoordinate, ChessmenMap } from "../app-values";
-import type { PositionOnScreen } from "../helpers/position-on-screen";
-import type { Chessmen } from "./chessmen";
-
+import { type PositionOnScreen } from "../helpers/position-on-screen";
+import { type Chessmen } from "./chessmen";
 import { optionalValueBox } from "../helpers/optional-value-box";
-import { boardCoordinates } from "../app-values";
+import { type BoardDirection, type BoardCoordinate, type ChessmenMap, boardCoordinates } from "../app-values";
 
 export class Board {
 	readonly #attributeName = "data-test-board";

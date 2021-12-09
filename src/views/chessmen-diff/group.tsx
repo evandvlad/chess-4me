@@ -1,9 +1,6 @@
 import React, { memo } from "react";
-
-import type { ChessmenDiffItem } from "~/domain";
-
+import { type ChessmenDiffItem } from "~/domain";
 import { Item } from "./item";
-
 import styles from "./chessmen-diff.module.scss";
 
 interface Props {

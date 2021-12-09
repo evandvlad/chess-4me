@@ -1,3 +1,5 @@
+import { hasIndex } from "~/utils/array";
+
 const coordinatePartsSeparator = "";
 const pathPartsSeparator = "/";
 
@@ -47,12 +49,7 @@ function lookupCoordinatePart<T extends File | Rank>(
 	distance: Distance,
 ): T | null {
 	const newIndex = order.indexOf(startCoordinatePart) + distance;
-
-	if (newIndex < 0 || newIndex >= order.length) {
-		return null;
-	}
-
-	return order[newIndex]!;
+	return hasIndex(order, newIndex) ? order[newIndex]! : null;
 }
 
 export function lookupCoordinate(startCoordinate: Coordinate, path: Path): Coordinate | null {

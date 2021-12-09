@@ -1,7 +1,6 @@
 import { makeObservable, computed, comparer } from "mobx";
-
-import type { ChessmanColor } from "~/domain";
-import type { GameManager } from "./game-manager";
+import { type ChessmanColor } from "~/domain";
+import { type GameManager } from "./game-manager";
 
 type ChessmenDiffGroup = ChessmanColor;
 

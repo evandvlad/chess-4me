@@ -1,13 +1,11 @@
-import type { Coordinate, Path } from "../board";
-
-import { lookupCoordinate } from "../board";
+import { type Coordinate, type Path, lookupCoordinate } from "../board";
 
 export interface ScanDirection {
 	readonly path: Path;
 	readonly iterateOnce: boolean;
 }
 
-export interface ScanStep {
+interface ScanStep {
 	readonly coordinate: Coordinate;
 	readonly direction: ScanDirection;
 	readonly iterations: number;

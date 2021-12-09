@@ -1,4 +1,4 @@
-import type { Chessman } from "../app-values";
+import { type Chessman } from "../app-values";
 
 export class Chessmen {
 	readonly #attributeName = "data-test-chessman";

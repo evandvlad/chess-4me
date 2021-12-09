@@ -1,7 +1,5 @@
-import type { ReactNode } from "react";
-import type { Chessman } from "~/domain";
-
-import React, { useState } from "react";
+import React, { type ReactNode, useState } from "react";
+import { type Chessman } from "~/domain";
 import { AddChessmanDialog } from "../add-chessman-dialog";
 
 interface Props {

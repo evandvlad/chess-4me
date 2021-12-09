@@ -1,9 +1,7 @@
 import { makeObservable, computed } from "mobx";
-
-import type { GameManager } from "./game-manager";
-import type { Board } from "./board";
-import type { Chessman } from "~/domain";
-
+import { type GameManager } from "./game-manager";
+import { type Board } from "./board";
+import { type Chessman } from "~/domain";
 import { assert } from "~/utils/assert";
 
 export class Controls {

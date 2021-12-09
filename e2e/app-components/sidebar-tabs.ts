@@ -1,4 +1,4 @@
-import type { SidebarTabsTab } from "../app-values";
+import { type SidebarTabsTab } from "../app-values";
 
 export class SidebarTabs {
 	readonly #selector = "[data-test-sidebar-tabs]";

@@ -1,9 +1,7 @@
-import type { BoardCoordinate, Chessman } from "../app-values";
-
 import { comparePositionsOnScreens } from "../helpers/position-on-screen";
 import { assertOptionalValueBox, assertChessmenMapsAreEquals } from "../helpers/asserts";
 import { board, controls, game, addChessmanDialog, history, sidebarTabs, chessmenDiff } from "../app-components";
-import { initialChessmenArrangement, allChessmen } from "../app-values";
+import { type BoardCoordinate, type Chessman, initialChessmenArrangement, allChessmen } from "../app-values";
 
 describe("simple cases", () => {
 	beforeEach(() => {

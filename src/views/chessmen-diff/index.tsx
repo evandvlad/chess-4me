@@ -1,10 +1,7 @@
 import React from "react";
 import { observer, Observer } from "mobx-react-lite";
-
-import type { ChessmenDiff as ViewModelChessmenDiff } from "~/view-models";
-
+import { type ChessmenDiff as ViewModelChessmenDiff } from "~/view-models";
 import { Group } from "./group";
-
 import styles from "./chessmen-diff.module.scss";
 
 interface Props {

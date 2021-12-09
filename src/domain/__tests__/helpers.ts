@@ -1,6 +1,11 @@
-import type { Game, BoardCoordinate, HistoryItem, Chessman, ChessmenDiffItem } from "..";
-
-import { boardCoordinates } from "..";
+import {
+	type Game,
+	type BoardCoordinate,
+	type HistoryItem,
+	type Chessman,
+	type ChessmenDiffItem,
+	boardCoordinates,
+} from "..";
 
 type ChessmenMap = Map<BoardCoordinate, Chessman>;
 type GameMode = "regular" | "empty board";

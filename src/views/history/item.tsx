@@ -1,10 +1,7 @@
 import React, { memo } from "react";
-
-import type { HistoryItem } from "~/view-models";
-
+import { type HistoryItem } from "~/view-models";
 import { cssClassNames } from "~/utils/css-class-names";
 import { Content } from "./content";
-
 import styles from "./history.module.scss";
 
 interface Props extends HistoryItem {

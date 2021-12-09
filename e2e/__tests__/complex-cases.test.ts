@@ -1,8 +1,6 @@
-import type { ChessmenMap } from "../app-values";
-
 import { assertChessmenMapsAreEquals, assertOptionalValueBox } from "../helpers/asserts";
 import { game, board, controls, history, sidebarTabs, chessmenDiff } from "../app-components";
-import { initialChessmenArrangement } from "../app-values";
+import { type ChessmenMap, initialChessmenArrangement } from "../app-values";
 
 describe("complex cases", () => {
 	beforeEach(() => {

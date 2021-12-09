@@ -1,4 +1,4 @@
-import type { GameControlName } from "../app-values";
+import { type GameControlName } from "../app-values";
 
 export class Controls {
 	readonly #selector = "[data-test-controls]";

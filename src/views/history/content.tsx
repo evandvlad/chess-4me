@@ -1,9 +1,6 @@
 import React from "react";
-
-import type { HistoryItem } from "~/domain";
-
+import { type HistoryItem } from "~/domain";
 import { Chessman } from "../chessman";
-
 import styles from "./history.module.scss";
 
 function renderContent({ item, prefix, suffix }: { item: HistoryItem; prefix?: string; suffix: string }) {

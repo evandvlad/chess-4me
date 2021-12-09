@@ -1,4 +1,4 @@
-import type { ChessmenDiffItem } from "../app-values";
+import { type ChessmenDiffItem } from "../app-values";
 
 export class ChessmenDiff {
 	readonly #selector = "[data-test-chessmen-diff]";

@@ -1,9 +1,6 @@
 import { makeObservable, observable, action } from "mobx";
-
-import type { BoardCoordinate } from "~/domain";
-import type { GameManager } from "../game-manager";
-
-import { boardCoordinates } from "~/domain";
+import { type BoardCoordinate, boardCoordinates } from "~/domain";
+import { type GameManager } from "../game-manager";
 import { BoardCell } from "./cell";
 
 export class Board {

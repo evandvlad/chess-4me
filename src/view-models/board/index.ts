@@ -1,3 +1,2 @@
-export type { Cell } from "./cell";
-
+export { type Cell } from "./cell";
 export { Board } from "./board";

@@ -1,9 +1,6 @@
 import React from "react";
-
-import type { Chessman as DomainChessman } from "~/domain";
-
+import { type Chessman as DomainChessman } from "~/domain";
 import { Chessman } from "../chessman";
-
 import styles from "./add-chessman-dialog.module.scss";
 
 interface Props {

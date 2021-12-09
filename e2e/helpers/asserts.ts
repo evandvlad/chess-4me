@@ -1,7 +1,5 @@
-import type { OptionalValueBox, OptionalValue } from "./optional-value-box";
-import type { ChessmenMap } from "../app-values";
-
-import { boardCoordinates } from "../app-values";
+import { type OptionalValueBox, type OptionalValue } from "./optional-value-box";
+import { type ChessmenMap, boardCoordinates } from "../app-values";
 
 export function assertOptionalValueBox<T>(expected: OptionalValue<T>) {
 	return function <T>({ value }: OptionalValueBox<T>) {

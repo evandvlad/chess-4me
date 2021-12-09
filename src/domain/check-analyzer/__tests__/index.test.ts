@@ -1,5 +1,4 @@
-import type { ChessmenMap } from "../../chessmen";
-
+import { type ChessmenMap } from "../../chessmen";
 import { analyzeCheck } from "..";
 
 describe("check-analyzer", () => {

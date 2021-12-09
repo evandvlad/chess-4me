@@ -1,9 +1,6 @@
 import React from "react";
-
-import type { ChessmenDiffItem } from "~/domain";
-
+import { type ChessmenDiffItem } from "~/domain";
 import { Chessman } from "../chessman";
-
 import styles from "./chessmen-diff.module.scss";
 
 export function Item({ chessman, num }: ChessmenDiffItem) {

@@ -1,11 +1,8 @@
 import React from "react";
 import { observer, Observer } from "mobx-react-lite";
-
-import type { Controls as ViewModelControls } from "~/view-models";
-
+import { type Controls as ViewModelControls } from "~/view-models";
 import { Button } from "./button";
 import { AddChessmanControl } from "./add-chessman-control";
-
 import styles from "./controls.module.scss";
 
 interface Props {

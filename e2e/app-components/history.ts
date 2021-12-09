@@ -1,5 +1,4 @@
-import type { HistoryItem } from "../app-values";
-
+import { type HistoryItem } from "../app-values";
 import { optionalValueBox } from "../helpers/optional-value-box";
 
 export class History {
