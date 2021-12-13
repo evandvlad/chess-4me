@@ -33,7 +33,7 @@ export function Cell({ coordinate, isSelected, isFocused, chessman, select }: Pr
 	}
 
 	return (
-		<div {...dataAttributes} className={className} onClick={handleClick} title={coordinate}>
+		<div {...dataAttributes} className={className} onClick={handleClick} title={coordinate} tabIndex={-1}>
 			{chessman ? <Chessman chessman={chessman.value} isUnderAttack={chessman.isUnderAttack} /> : null}
 		</div>
 	);

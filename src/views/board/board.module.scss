@@ -9,6 +9,7 @@
 			grid-row: $row;
 			background-color: colors.$brown-light;
 			cursor: pointer;
+			outline: none;
 
 			@if $is-dark-cell {
 				background-color: colors.$brown-middle;

@@ -11,7 +11,6 @@ export default defineConfig({
 		},
 	},
 	server: {
-		strictPort: true,
 		fs: {
 			strict: false,
 		},
